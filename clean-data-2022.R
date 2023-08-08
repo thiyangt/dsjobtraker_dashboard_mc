@@ -42,9 +42,6 @@ data1 <- data1 %>% mutate(Knowledge_in = rep(NA, 360),`English proficiency descr
                           Location=rep(NA,360))
 
 
-dim(data1)
-
-
 # Creating new variables
 
 # Categorizing experience variable
@@ -134,7 +131,7 @@ data1 <- data1 %>% mutate(country_code = case_when(
   Country == "China"~ "CHN",
   Country == "Singapore"~ "SGP",
   Country == "New Zealand"~ "NZL",
-  Country == "SPain"~ "ESP",
+  Country == "Spain"~ "ESP",
   Country == "Russia"~ "RUS",
   Country == "Ireland"~ "IRL",
   Country == "Japan"~ "JPN",
@@ -144,12 +141,12 @@ data1 <- data1 %>% mutate(country_code = case_when(
   Country == "Mexico"~ "MEX",
   Country == "Turkey"~ "TUR",
   Country == "Switzerland"~ "CHE",
-  Country == "Quatar"~ "QAT",
+  Country == "Qatar"~ "QAT",
   Country == "Belgium"~ "BEL",
   Country == "Denmark"~ "DNK",
   Country == "Germany"~ "DEU",
   Country == "Poland"~ "POL",
-  Country == "Netherland"~ "NLD",
+  Country == "Netherlands"~ "NLD",
   Country == "Italy"~ "ITA",
   Country == "Portugal"~ "PRT",
   Country == "Hungary"~ "HUN",
@@ -162,20 +159,13 @@ data1 <- data1 %>% mutate(country_code = case_when(
   Country == "Ireland"~ "IRL",
   Country == "Tunisia"~ "TUN",
   Country == "Romania" ~ "ROU",
-  Country == "Czech Replublic"~ "CZE",
+  Country == "Czech Republic"~ "CZE",
   Country == "Malta"~ "MLT"
 ))
 
 # Education qualification
 
 data1$Educational_qualifications <- paste(data1$BSc_needed,data1$MSc_needed,data1$PhD_needed,sep=",")
-
-
-#data1$Educational_qualifications <- gsub(".*0_0_0.*",NA,data1$Educational_qualifications)
-
-# Knowledge In 
-
-data1 <- data1 %>% unite("Knowledge_in")
 
 # Export dataset
 
