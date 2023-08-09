@@ -25,7 +25,7 @@ library(countrycode)
 library(quantmod)
 library(formattable)
 
-df <- read_csv("DStidy_2022.csv")
+DStidy_2022 <- read_csv("DStidy_2022.csv")
 ```
 
 Overview
@@ -160,11 +160,33 @@ column{.tabset}
 Software and Skills
 ======================================================
 
-
 Column {data-width=500}
 -----------------------------------------------------------------------
 
 ### Top 20 skills required in jobs
+
+```{r}
+
+Top_skills_required<- DStidy_2022%>%
+  select(c(AI:Web_Analytic_tools)) %>%
+  pivot_longer(c(AI:Web_Analytic_tools), values_to = "Value", names_to = "Name") %>%
+  group_by(Name) %>%
+  summarize(Total = sum(Value, na.rm = TRUE)) %>% 
+  arrange(Total) 
+  
+  Top_skills_required %>%
+  mutate(Name = factor(Name, levels = .$Name)) %>%
+  top_n(20) %>%
+plot_ly(
+        x= ~Total,
+        y= ~reorder(Name,Total),
+        type = "bar",
+   marker = list(color = "hsl(0,100%,50%))") ,height = 600,width = 700)  %>% 
+ 
+layout(title = "Top 20 Skills Required in Jobs",xaxis = list(title = "No of Job Advertisments"),
+         yaxis =list(title = "Skills Required"))
+```
+
 
 
 Column {data-width=500}
@@ -172,7 +194,23 @@ Column {data-width=500}
 
 ### Soft skills required in jobs
 
+```{r}
 
+ Soft_skills_required<- DStidy_2022%>%
+  select(c(Presentation_Skills:`agile execution`)) %>%
+  pivot_longer(c(Presentation_Skills:`agile execution`), values_to = "Value", names_to = "Name") %>%
+  group_by(Name) %>%
+  summarize(Total = sum(Value, na.rm = TRUE)) %>% 
+  arrange(Total) 
+
+Soft_skills_required %>%
+  plot_ly(labels = ~Name,
+          values = ~Total,
+          parents = NA,
+          type = "treemap", height = 600, width = 650) %>%
+  layout(title = "Soft Skills Required in Jobs")
+
+```
 
 
 Software Skills
@@ -184,12 +222,12 @@ Column {data-width=500}
 ### Statistical softwares
 
 
+
+
 Column {data-width=500}
 -----------------------------------------------------------------------
 
 ### Database and Query languages
-
-
 
 
 
