@@ -352,6 +352,7 @@ DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category %in%
                                 "Analyst", "Research", "Machine Learning", "AI", "Engineering", "Consulting"), DStidy_2022$Job_Category, "Other")
 
 DStidy_2022$`English Requirement`= ifelse(DStidy_2022$`English Requirement` == 1, "Required", "Not Specified")
+unique(DStidy_2022$Job_Category)
 ```
 
 
@@ -370,7 +371,12 @@ df_english_req_cont = df_english_req_cont %>%
 
 df_english_req_cont = df_english_req_cont %>% mutate(perc = round(cnt / sum(cnt), 2)*100) 
 
-ggplot(df_english_req_cont, aes(fill=`English Requirement`, y=Continent, x=perc, label = cnt)) +
+## unique(df_english_req_cont$Continent)
+df_english_req_cont_temp <- df_english_req_cont
+  
+df_english_req_cont_temp$Continent <- factor(df_english_req_cont$Continent, levels = c("Unknown", "South America", "Africa", "Oceania", "Asia", "North America", "Europe")) 
+
+ggplot(df_english_req_cont_temp, aes(fill=`English Requirement`, y=Continent, x=perc, label = cnt)) +
   geom_bar( stat="identity") +
   geom_text(size = 3, position = position_stack(vjust = 0.5)) +
   labs(y = "Continent", x = "Percentage") +
@@ -391,12 +397,15 @@ data_english_req_job = select(DStidy_2022, c("Job_Category", "English Requiremen
 data_english_req_job = DStidy_2022 %>%
   group_by(Job_Category, `English Requirement`) %>%
   summarise(cnt = n())
+## unique(data_english_req_job$Job_Category)
 
 data_english_req_job = data_english_req_job %>% mutate(perc = round(cnt / sum(cnt), 2)*100)
 
+data_english_req_job_temp <- data_english_req_job
+data_english_req_job_temp$Job_Category <- factor(data_english_req_job_temp$Job_Category, levels = c("Other", "Machine Learning", "Engineering", "Consulting", "Information Technology", "Analyst", "Research", "Data Science", "AI", "Data Analyst")) 
 
 ### English Requirement by Job Field
-ggplot(data_english_req_job, aes(fill=`English Requirement`, y=Job_Category, x=perc, label = cnt)) +
+ggplot(data_english_req_job_temp, aes(fill=`English Requirement`, y=Job_Category, x=perc, label = cnt)) +
   geom_bar(stat="identity") +
   geom_text(size = 3, position = position_stack(vjust = 0.5)) +
   labs(y= "Job Category", x = "Percentage") +
