@@ -24,9 +24,14 @@ library(data.table)
 library(countrycode)
 library(quantmod)
 library(formattable)
-library(ggplot2)
 library(ggwordcloud)
-
+library(dplyr)
+library(ggplot2) 
+library(readr)
+library(readxl)
+library(sp)
+library(gganimate)
+library(ggpubr)
 DStidy_2022 <- read_csv("DStidy_2022.csv")
 ```
 
@@ -564,24 +569,119 @@ d2 %>% plot_ly(x = ~Frequency, y = ~reorder(Database_and_Query_languages, Freque
 Knowledge and Skills
 ======================================================
 
+```{r, message=FALSE, include=FALSE}
+
+## changing column names 
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Natural_Language_Processing(NLP)"] = "Natural Language Processing"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_Pipelines"] = "Data Pipelines"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Machine_Learning"] = "Machine Learning"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Computer_vision"] = "Computer Vision"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_visualization"] = "Data Visualization"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_warehouse"] = "Data Warehouse"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "BigData"] = "Big Data"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_management"] = "Data Management"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_mining"] = "Data Mining"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_science"] = "Data Science"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Numerical_Analysis"] = "Numerical Analysis"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Problem_Solving"] = "Problem Solving"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Team_Handling"] = "Team Handling"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "agile execution"] = "Agile Execution"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Data_marketing"] = "Data Marketing"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "SEO"] = "Search Engine Optimization"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "graphics_and_design_skills"] = "Graphic Designing"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Content_Management"] = "Content Management"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Economic"] = "Economic Knowledge"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Finance_Knowledge"] = "Finance Knowledge"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Investment_Knowledge"] = "Investment Knowledge"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Debtor_reconcilation"] = "Debtor Reconcilation"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Presentation_Skills"] = "Presentation Skills"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "Payroll_management"] = "Payroll Management"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "AI"] = "Artificial Intelligence"
+colnames(DStidy_2022)[colnames(DStidy_2022) == "IOT"] = "IOT (Internet of Things)"
+```
+
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Treemap of Konwledge and skills
+### Treemap of Knowledge and skills
 
+```{r, message=FALSE, warning=FALSE}
+## tree map 
 
+ks<-DStidy_2022 %>% select(c(`Artificial Intelligence`:`IOT (Internet of Things)`,`Presentation Skills`:`Payroll Management`))
 
-Column {data-width=350}{.tabset .tabset-fade}
------------------------------------------------------------------------
+df<-ks%>%pivot_longer(1:30)
+colnames(df)[1] <- "Knowledge and Skills"
+colnames(df)[2] <- "Cases"
+df<- df %>%group_by(`Knowledge and Skills`) %>%
+  summarize(No_of_Job_vacancies = sum(Cases))%>%mutate(parents="Knowledge and Skills") 
 
-### Required Knowledge according to job category
+##plot
+tree_all <- df%>%plot_ly(type="treemap",labels=~`Knowledge and Skills`,parents=~parents,values=~No_of_Job_vacancies,domain=list(column=0),
+             textinfo="label+value+percent parent")
+tree_all
+```
 
+## Column {.tabset}
 
-### Required Skills according to job category
+### Knowledge
 
+```{r,message=FALSE,warning = FALSE}
+## preparing data
+Job_Titles <- str_to_lower(DStidy_2022$Job_title)
+Job_Titles <- str_trim(Job_Titles)
 
+DS <- Job_Titles[str_detect(Job_Titles, "([data]{4}|machine)[&a-z\\s]*([scientist]{7,10})|\\s+ai")] %>% unique() 
+DE <- Job_Titles[str_detect(Job_Titles, "([data]{4}|machine|intelligence)[&a-z\\s]*([engineer]{8,9})")] %>% unique()
+DA <- Job_Titles[str_detect(Job_Titles, "anal|statist|actuarial|research|statician")] %>% unique()
 
+DA <- DA %>% append(Job_Titles[!(Job_Titles%in%c(DS,DE,DA))] %>% unique() %>% .[str_detect(.,"data\\s+")]) 
+DS <- DS %>% append(Job_Titles[!(Job_Titles%in%c(DS,DE,DA))] %>% unique() %>% .[str_detect(.,"machine\\s+")])
 
+DA <- DA[!DA%in%DS]
+DA <- DA[!DA%in%DE]
+DS<-DS[!DS%>%is.na()]
+DE<-DE[!DE%>%is.na()]
+Unimportant <- Job_Titles[!(Job_Titles%in%c(DS,DE,DA))] %>% unique()
+
+DStidy_2022  <- DStidy_2022 %>% mutate(Job_Titles, Job_Category= 
+                                         ifelse(Job_Titles%in%DS & Job_Titles%in%DE, "Data Science and Data Engineering", 
+                                                ifelse(Job_Titles%in%DS, "Data Science", ifelse(Job_Titles%in%DA,"Data Analyst", "Other" ) ) )) 
+
+## dot chart 
+df1<-DStidy_2022%>%select(c(`Artificial Intelligence`:`IOT (Internet of Things)`,Job_Category))
+                          
+df11 <- df1 %>% pivot_longer(1:16) 
+
+colnames(df11)[2] <- "Knowledge"
+colnames(df11)[3] <- "Cases"
+
+df12 <- df11 %>% filter(Cases == 1) 
+df12 <- df12 %>% group_by(Knowledge,Job_Category) %>% count()
+
+p2<- ggdotchart(df12,x = "Knowledge" ,y="n",color = "Job_Category",palette = c("#00AFBB","#E7B800","#FC4E07","#FF1493","#7FFFD4"),sorting = "asc",sort.by.groups=TRUE,add="segments",add.params = list(color="lightgray",size=2),dot.size = 4,ggtheme =theme_pubclean())+ font("x.text",size=8,vjust=0.5)+labs(x="Required Knowledge ",y="Count")
+
+ggpar(p2,legend.title = "")%>%ggplotly()%>%layout(legend=list(orientation="h",xanchor="center",x=0.5,y=1.6))
+```
+
+### Other required skills 
+```{r,message=FALSE,warning = FALSE}
+## preparing data 
+
+df2<-DStidy_2022%>%select(c(`Presentation Skills`:`Payroll Management`,Job_Category))
+df21 <- df2 %>% pivot_longer(1:14) 
+## changing column name 
+colnames(df21)[2] <- "Skills"
+colnames(df21)[3] <- "Cases"
+
+df22 <- df21 %>% filter(Cases == 1) 
+df22 <- df22 %>% group_by(Skills,Job_Category) %>% count()
+
+## dot chart 
+p3<- ggdotchart(df22,x = "Skills" ,y="n",color = "Job_Category",palette = c("#00AFBB","#E7B800","#FC4E07","#FF1493","#7FFFD4"),sorting = "asc",sort.by.groups=TRUE,add="segments",add.params = list(color="lightgray",size=2),dot.size = 4,ggtheme =theme_pubclean())+ font("x.text",size=8,vjust=0.5)+labs(x="Required Skills ",y="Count")
+
+ggpar(p3,legend.title = "")%>%ggplotly()%>%layout(legend=list(orientation="h",xanchor="center",x=0.5,y=1.6))
+```
 
 Education
 ======================================================
