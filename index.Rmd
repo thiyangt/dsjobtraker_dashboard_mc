@@ -393,10 +393,47 @@ Column {data-width=650}
 Experience
 ======================================================
 
+```{r}
+## Packages
+library(tidyverse)
+library(plotly)
+library(DSjobtracker)
+```
+
+
+```{r}
+## Install the data set
+DStidy_2022 <- read_csv("DStidy_2022.csv")
+DStidy_2022 <- DStidy_2022 %>% mutate(`Minimum Experience in Years` = case_when(
+ `Minimum Experience in Years` %in% c(0.5,1) ~ 1,
+ `Minimum Experience in Years`== 0 ~ 0 ,
+  `Minimum Experience in Years`== 2 ~ 2,
+  `Minimum Experience in Years`== 3 ~ 3,
+  `Minimum Experience in Years`== 4 ~ 4,
+  `Minimum Experience in Years`== 5 ~ 5,
+  `Minimum Experience in Years`== 6 ~ 6,
+  `Minimum Experience in Years`== 7 ~ 7,
+  `Minimum Experience in Years`== 8 ~ 8,
+  `Minimum Experience in Years`== 10 ~ 10,
+  `Minimum Experience in Years`== 12 ~ 12
+))
+  
+
+```
+
 column{}
 ----------------------------------------------------------------------
 
 ### Distribution of Minimun Years of Experience
+
+```{r}
+plot_ly(DStidy_2022,
+        x = ~`Minimum Experience in Years`,
+        type = "histogram") %>%
+  layout(xaxis = list(title = "Minimum Required Experience in Years"),
+         yaxis = list(title = "No of Job Advertisements"), 
+         showlegend = FALSE)
+```
 
 
 column{.tabset}
@@ -404,9 +441,60 @@ column{.tabset}
 
 ### Distribution of Experience by Job Category
 
+```{r}
+DStidy_2022 <- DStidy_2022 %>% mutate(`Job_Category` = case_when(
+   `Job_Category` %in% c("Business Analytics","Business/Systems Analysts","Finance and Sales","Business Development and Sales","Administrative","Human Resources Services", "Consulting, Information Technology, and Sales","Information Services","IT Services") ~ "Buisness Analyst",
+  
+   `Job_Category` %in% c("Data Science","Database Systems","Statistics","Data science","Research, Consulting, and Analyst","Actuarial Science","Information Technology, Analyst,and Science","Machine Learning","AI", "Artificial Intelligence") ~ "Data Scientist",
+ 
+    `Job_Category` %in% c("Data Analyst","Science & Technology","Sciences","Internet Publishing" ,"Science and Analyst","Analyst","Research, Consulting, and Analyst","Research, Analyst, and Information Technology") ~ "Data Analyst",
+ 
+    `Job_Category` %in% c( "Engineering - Software","Engineering, Mechanical" ,"Data Engineering","Software Developmwnt","Information Technology", "Computer/Information Technology","IT","Analyst, Engineering and Information Technology","Management, Engineering and Analyst","Engineering and Information  Technology","Information Technology and Analyst")~"Data Engineering"
+ 
+
+))
+data_exp <- DStidy_2022 %>% filter(Job_Category != "NA")
+
+plot_ly(data_exp,
+        x = ~Job_Category,
+        y = ~`Minimum Experience in Years`,
+        type = "box",
+        color = ~Job_Category,
+        colors = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a","blue")) %>%
+  layout(xaxis = list(title  = "Job Category", tickangle = 0),
+         yaxis = list(title = "Minimum Required Experience in Years"), showlegend = FALSE)
+```
 
 ### Distribution of Experience by Educational Qualifications
 
+
+```{r}
+
+edu <- DStidy_2022 %>% select("BSc_needed","MSc_needed","PhD_needed","Minimum Experience in Years")
+
+# convert data set into numeric
+edu1 <- as.data.frame(apply(edu, 2, as.numeric))
+
+education <- replace(edu1, is.na(edu1), 1)
+
+
+data_new <- pivot_longer(education, c(1:3), names_to = "Education", values_to = "Value")
+
+
+
+data2 <- data_new %>% filter(Value == 1)
+
+
+plot_ly(data2,
+        x = ~ Education,
+        y = ~`Minimum Experience in Years`,
+        type = "box",
+        color = ~Education,
+        colors = c("#e41a1c", "#377eb8", "#4daf4a")) %>%
+  layout(xaxis = list(title  = "Minimum Educational Qualifications", tickangle = 0),
+         yaxis = list(title = "Minimum Required Experience in Years"), showlegend = FALSE)
+
+```
 
 
 
@@ -686,12 +774,59 @@ ggpar(p3,legend.title = "")%>%ggplotly()%>%layout(legend=list(orientation="h",xa
 Education
 ======================================================
 
+```{r , include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(dplyr)
+```
+
+```{r data}
+edu <- DStidy_2022 %>% select("BSc_needed","MSc_needed","PhD_needed")
+# convert data set into numeric
+edu1 <- as.data.frame(apply(edu, 2, as.numeric))
+education <- replace(edu1, is.na(edu1), 1)
+d <- education %>%
+  rowwise() %>%
+  mutate(degree = sum(BSc_needed,MSc_needed,PhD_needed, na.rm = T))
+
+# Education qualification is classified based on the minimum level of education.
+for(i in 1:nrow(d)){
+ if((d[i,1] == 1 & d[i,4]>=1) == TRUE){  # BSc
+    d$V3[i] <- "Bachelor's"
+  }else if((d[i,1]== 0 & d[i,2] == 1 & d[i,4]>=1) == TRUE){  # MSc
+    d$V3[i] <- "Master's"
+  }else if ((d[i,3] == 1 & d[i,4]==1) == TRUE){ # PhD
+    d$V3[i] <- "PhD"   
+  }else if (( d[i,4]==0 ) == TRUE){  
+    d$V3[i] <- "Other"
+ 
+  }}  # other - There is no mention of a degree level, so there could be a different educational qualification. qualification 
+
+d <- d %>% rename(degree_level = V3)
+d <- d %>% select(-`degree`)
+Final_edu <- d %>% group_by(degree_level) %>% 
+  summarise(total_count=n(),
+            .groups = 'drop')
+Final_edu$degree_level <- factor(Final_edu$degree_level, levels = c("Other","PhD","Master's","Bachelor's"))
+``` 
+
+
 Column {data-width=200, .tabset}
 -----------------------------------------------------------------------
 
 ### Educational Qualifications
 
-
+```{r}
+plot1 <- Final_edu %>% plot_ly(x = ~total_count, y = ~degree_level, type = 'bar',color = Final_edu$degree_level, domain = list(x = c(0, 0.5), y = c(0, 1))) %>% 
+  layout(yaxis = list(title = " Minimum Education Qualification"),title= "Education Qualification",
+    xaxis = list(title = "Number of Job Vacancies",tickangle=-45))
+                               
+  # layout(
+  #   title= "Education Qualification",
+  #   xaxis = list(title = "Number of Job Vacancies",tickangle=-45 ,c("Other","Diploma","Bachelor's","Master's","PhD")) ,
+  #   yaxis = list(title = " Minimum Education Qualification"),font = list(color = 'black'))
+plot1
+```
 
 
 
