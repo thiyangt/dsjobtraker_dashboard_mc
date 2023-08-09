@@ -554,24 +554,6 @@ ggplot(data_english_req_job_temp, aes(fill=`English Requirement`, y=Job_Category
 ```
 
 
-Soft Skills
-======================================================
-
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Composition of demanded Soft Skills
-
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-### Demanded Soft Skills according to the Job Field
-
-
-
-
-
 Experience
 ======================================================
 
@@ -682,7 +664,7 @@ plot_ly(data2,
 
 
 
-Software and Skills
+Top Software and Skills
 ======================================================
 
 Column {data-width=500}
@@ -833,6 +815,23 @@ d2 %>% plot_ly(x = ~Frequency, y = ~reorder(Database_and_Query_languages, Freque
 
 
 ```
+
+
+Soft Skills
+======================================================
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Composition of demanded Soft Skills
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Demanded Soft Skills according to the Job Field
+
+
 
 
 
