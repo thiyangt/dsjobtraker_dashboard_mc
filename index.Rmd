@@ -766,7 +766,7 @@ Inspiration
 
 ```{r}
 
-knitr::include_graphics("inspiration.png")
+knitr::include_graphics("inspiration_tab_image.png")
 
 ```
 
