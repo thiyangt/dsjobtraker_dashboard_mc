@@ -43,6 +43,8 @@ set.seed(1)
 
 ##### ----- Job Title data ----- #####
 
+# cleaning
+
 overview_jobtitle <- DStidy_2022 %>% select(Job_title)
 
 overview_jobtitle <- as.vector(overview_jobtitle)
@@ -82,6 +84,8 @@ overview_jobtitle_df <- overview_jobtitle_df[!(row.names(overview_jobtitle_df)
                                              %in% c("-", "csenior", "early", 
                                                     "fair", "sassqltableaupower")), ]
 
+# visualization
+
 ggplot(overview_jobtitle_df, aes(label=words, 
                                  size=freq, 
                                  color=factor(sample.int(10, 
@@ -106,6 +110,8 @@ ggplot(overview_jobtitle_df, aes(label=words,
 set.seed(1)
 
 ##### ----- Job Field data ----- #####
+
+# cleaning
 
 overview_jobfield <- DStidy_2022 %>% select(Job_Field)
 
@@ -135,6 +141,8 @@ overview_jobfield_df$words[overview_jobfield_df$words=="developmwnt"] <- "develo
 overview_jobfield_df$words[overview_jobfield_df$words=="cdata"] <- "data"
 overview_jobfield_df$words[overview_jobfield_df$words=="eqipment"] <- "equipment"
 
+# visualization
+
 ggplot(overview_jobfield_df, aes(label=words, 
                                  size=freq, 
                                  color=factor(sample.int(10, 
@@ -163,6 +171,8 @@ Column
 set.seed(1)
 
 ##### ----- Education Qualifications ----- #####
+
+# cleaning
 
 eduquali_data <- DStidy_2022 %>% 
   select(Educational_qualifications)
@@ -204,6 +214,8 @@ eduquali_data_df_selected$words[eduquali_data_df_selected$words=="related"] <- N
 # omitting the rows with NA
 eduquali_data_df_used <- na.omit(eduquali_data_df_selected)
 
+# visualization
+
 ggplot(eduquali_data_df_used, aes(label=words, 
                                   size=freq, 
                                   color=factor(sample.int(10, 
@@ -228,6 +240,8 @@ ggplot(eduquali_data_df_used, aes(label=words,
 set.seed(1)
 
 ##### ----- Country data ----- #####
+
+# cleaning
 
 overview_country <- DStidy_2022 %>% select(Country)
 
@@ -263,6 +277,9 @@ overview_country_df$words[overview_country_df$words=="new"] <- "newzealand"
 overview_country_df <- overview_country_df[!(row.names(overview_country_df) 
                                              %in% c("united", "sri", "emirates", 
                                                     "csri", "czech")), ]
+
+# visualization
+
 ggplot(overview_country_df, aes(label=words, 
                                 size=freq, 
                                 color=factor(sample.int(10, 
