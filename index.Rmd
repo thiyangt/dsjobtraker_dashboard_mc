@@ -221,6 +221,46 @@ Column {data-width=500}
 
 ### Statistical softwares
 
+```{r}
+
+Statistical_software <- paste(DStidy_2022$R,DStidy_2022$SAS,DStidy_2022$SPSS,DStidy_2022$Python,sep = "::")
+
+
+d1 <- Statistical_software %>% table() %>% as.data.frame()
+names(d1) <- c('Statistical_software', 'Frequency')
+d1 <- d1[order(d1$Frequency, decreasing = T),]
+
+Statistical_software[Statistical_software=="1::0::0::0"] <-"R only"
+Statistical_software[Statistical_software=="0::0::0::1"] <-"Python only"
+Statistical_software[Statistical_software=="0::1::0::0"] <-"SAS only"
+Statistical_software[Statistical_software=="1::0::0::1"] <-"R & Python"
+Statistical_software[Statistical_software=="1::1::0::1"] <-"R, SAS & Python only "
+Statistical_software[Statistical_software=="0::0::0::0"] <-"No statistical softwares"
+Statistical_software[Statistical_software=="0::1::0::1"|
+                     Statistical_software=="1::1::1::1"|
+                     Statistical_software=="0::1::1::1"|
+                     Statistical_software=="1::1::1::0"|
+                     Statistical_software=="0::0::1::0"|
+                     Statistical_software=="1::0::1::0"|
+                     Statistical_software=="1::0::1::1"|
+                     Statistical_software=="0::1::1::0"|
+                     Statistical_software=="0::1::0::NA"|
+                     Statistical_software=="0::0::1::1"|
+                     Statistical_software=="1::1::0::0"] <- "Other statistical softwares"
+
+
+d1 <- Statistical_software %>% table() %>% as.data.frame()
+names(d1) <- c('Statistical_software', 'Frequency')
+d1 <- d1[order(d1$Frequency, decreasing = T),]
+
+
+d1 %>% plot_ly(x = ~Frequency, y = ~reorder(Statistical_software, Frequency), 
+               type =  'bar', orientation = 'h') %>% 
+  layout(title = "", 
+         xaxis = list(title = "Number of job advertisements" ,zeroline = FALSE),
+         yaxis = list(title = "", zeroline = FALSE))
+
+```
 
 
 
@@ -229,6 +269,45 @@ Column {data-width=500}
 
 ### Database and Query languages
 
+```{r}
+Database_and_Query_languages <- paste(DStidy_2022$SQL,DStidy_2022$NoSQL,DStidy_2022$MySQL,DStidy_2022$Hadoop,sep = "::")
+
+
+d2 <- Database_and_Query_languages %>% table() %>% as.data.frame()
+names(d2) <- c('Database_and_Query_languages', 'Frequency')
+d2 <- d2[order(d2$Frequency, decreasing = T),]
+
+
+Database_and_Query_languages[Database_and_Query_languages=="1::0::0::0"] <-"SQL only"
+Database_and_Query_languages[Database_and_Query_languages=="1::0::1::0"] <-"SQL & MySQL"
+Database_and_Query_languages[Database_and_Query_languages=="1::0::0::1"] <-"SQL & Hadoop"
+Database_and_Query_languages[Database_and_Query_languages=="1::1::0::0"] <-"SQL & NoSQL"
+Database_and_Query_languages[Database_and_Query_languages=="0::0::0::0"] <-"No database or query languages"
+
+Database_and_Query_languages[Database_and_Query_languages=="0::0::1::0"|
+                             Database_and_Query_languages=="0::1::0::0"| 
+                             Database_and_Query_languages=="0::0::0::1"| 
+                             Database_and_Query_languages=="1::1::1::1"| 
+                             Database_and_Query_languages=="1::1::0::1"| 
+                             Database_and_Query_languages=="1::0::1::1"| 
+                             Database_and_Query_languages=="0::1::1::1"| 
+                             Database_and_Query_languages=="0::0::NA::0"| 
+                             Database_and_Query_languages=="1::1::1::0"] <- "Other"
+
+
+d2 <- Database_and_Query_languages %>% table() %>% as.data.frame()
+names(d2) <- c('Database_and_Query_languages', 'Frequency')
+d2 <- d2[order(d2$Frequency, decreasing = T),]
+
+
+d2 %>% plot_ly(x = ~Frequency, y = ~reorder(Database_and_Query_languages, Frequency), 
+               type =  'bar', orientation = 'h', color = "red") %>% 
+  layout(title = "", 
+         xaxis = list(title = "Number of job advertisment" ,zeroline = FALSE), 
+         yaxis = list(title = ""))
+
+
+```
 
 
 
