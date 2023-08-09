@@ -270,22 +270,140 @@ Column {.tabset .tabset-fade}
 English Requirement
 ======================================================
 
+
+```{r, message=FALSE, include=FALSE}
+## change column name 
+colnames(DStidy_2022)[colnames(DStidy_2022) == "English Needed"] = "English Requirement"
+
+## checking if there are any NA values 
+unique(DStidy_2022$`English Requirement`)
+class(DStidy_2022$`English Requirement`)
+
+# replace NA with 0 
+DStidy_2022["English Requirement"][is.na(DStidy_2022["English Requirement"])] <- 0
+unique(DStidy_2022$`English Requirement`)
+
+## Location 
+unique(DStidy_2022$`Country`)
+
+## Replace NA with other in Location column 
+DStidy_2022["Country"][is.na(DStidy_2022["Country"])] <- "Other"
+unique(DStidy_2022$`Country`)
+
+## detecting continents
+DStidy_2022$Continent = ifelse(DStidy_2022$Country %in% c("Sri Lanka", "Singapore", "United Arab Emirates", 
+          "Japan", "India", "Malaysia","Thailand", "Turkey", "China", "Qatar"), "Asia", 
+  ifelse(DStidy_2022$Country %in% c("UK", "Denmark", "Hungary", "Germany", "Greece", 
+  "Lithuania", "Sweden", "Poland", "Spain", "Belgium", "Netherlands", "Finland", "Romania", "Italy", 
+  "Czech Republic", "Switzerland", "Russia", "Malta", "Portugal", "Bulgaria"), "Europe", 
+  ifelse(DStidy_2022$Country %in% c("Tunisia"), "Africa", 
+  ifelse(DStidy_2022$Country %in% c("New Zealand", "Australia"), "Oceania", 
+  ifelse(DStidy_2022$Country %in% c("USA", "Mexico", "Virginia", "Canada"), "North America",
+ifelse(DStidy_2022$Country %in% c("Ecuador"), "South America", "Unknown"))))))
+
+unique(DStidy_2022$Continent)
+
+## Job category 
+unique(DStidy_2022$Job_Category)
+unique(DStidy_2022$Job_title)
+
+## Making job fields unique
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category %in% c("Computer/Information Technology", "IT", "Information Services"),
+                            "Information Technology", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Software Developmwnt", "Software Development", 
+                                  DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Data science" , "Data Science", 
+                                  DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Analyst, Engineering and Information Technology",
+                            "Analyst, Engineering, Information Technology", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Management, Engineering and Analyst" ,
+                            "Management, Engineering, Analyst", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Information Technology and Analyst" ,
+                            "Information Technology, Analyst", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Research, Analyst, and Information Technology" ,
+                            "Research, Analyst, Information Technology", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Consulting, Information Technology, and Sales",
+                            "Consulting, Information Technology, Sales", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Finance and Sales",
+                            "Finance, Sales" , DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Research, Consulting, and Analyst",
+                            "Research, Consulting, Analyst", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Information Technology, Analyst, and Science",
+                            "Information Technology, Analyst, Science", DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Engineering - Software" ,
+                            "Software Development" , DStidy_2022$Job_Category)
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Engineering and Information Technology" ,
+                            "Engineering, Information Technology" , DStidy_2022$Job_Category)
+
+unique(DStidy_2022$Job_Category)
+
+## spelling error 
+DStidy_2022 = DStidy_2022 %>%               
+  separate_rows(Job_Category, sep=", ")
+
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category == "Data Analytics" ,
+                            "Data Analyst" , DStidy_2022$Job_Category)
+
+
+## English Requirement 
+
+DStidy_2022$Job_Category = ifelse(DStidy_2022$Job_Category %in%
+                              c("Data Science", "Information Technology", "Data Analyst",
+                                "Analyst", "Research", "Machine Learning", "AI", "Engineering", "Consulting"), DStidy_2022$Job_Category, "Other")
+
+DStidy_2022$`English Requirement`= ifelse(DStidy_2022$`English Requirement` == 1, "Required", "Not Specified")
+```
+
+
 ## Column {data-width=500}
 --------------------------------------------------------------
 
-### English Requirement by Country
+### English Requirement by Continent
 
+```{r, message=FALSE, warning=FALSE}
+options(dplyr.summarise.inform = FALSE)
+df_english_req_cont = select(DStidy_2022, c("Continent", "English Requirement"))
 
+df_english_req_cont = df_english_req_cont %>%
+  group_by(Continent, `English Requirement`) %>%
+  summarise(cnt = n())
 
-## Column {data-width=500, .tabset}
+df_english_req_cont = df_english_req_cont %>% mutate(perc = round(cnt / sum(cnt), 2)*100) 
+
+ggplot(df_english_req_cont, aes(fill=`English Requirement`, y=Continent, x=perc, label = cnt)) +
+  geom_bar( stat="identity") +
+  geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+  labs(y = "Continent", x = "Percentage") +
+  theme(legend.position = "bottom") + 
+  scale_fill_manual(values = c("#919198", "deeppink3")) + 
+  guides(fill = guide_legend(reverse = TRUE))
+```
+
+## Column {data-width=500}
 --------------------------------------------------------------
-
-### English Requirement by Job Field
-
 
 ### English Requirement by Job Category
 
+```{r, message=FALSE, warning=FALSE}
+## plot2 
+options(dplyr.summarise.inform = FALSE)
+data_english_req_job = select(DStidy_2022, c("Job_Category", "English Requirement"))
+data_english_req_job = DStidy_2022 %>%
+  group_by(Job_Category, `English Requirement`) %>%
+  summarise(cnt = n())
 
+data_english_req_job = data_english_req_job %>% mutate(perc = round(cnt / sum(cnt), 2)*100)
+
+
+### English Requirement by Job Field
+ggplot(data_english_req_job, aes(fill=`English Requirement`, y=Job_Category, x=perc, label = cnt)) +
+  geom_bar(stat="identity") +
+  geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+  labs(y= "Job Category", x = "Percentage") +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = c("#919198", "deeppink3")) + 
+  guides(fill = guide_legend(reverse = TRUE))
+```
 
 
 Soft Skills
