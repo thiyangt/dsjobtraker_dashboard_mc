@@ -610,7 +610,8 @@ Row
 ### Distibution of Average of Minimum Salaries by Countries
 
 
-
+Inspiration
+======================================================
 
 Our Team
 ======================================================
