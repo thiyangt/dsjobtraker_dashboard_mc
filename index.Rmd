@@ -462,7 +462,7 @@ Soft_skills_required %>%
   plot_ly(labels = ~Name,
           values = ~Total,
           parents = NA,
-          type = "treemap", height = 600, width = 650) %>%
+          type = "treemap", height = 600, width = 650, textinfo = "label+value+percent parent") %>%
   layout(title = "Soft Skills Required in Jobs")
 
 ```
