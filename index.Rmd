@@ -40,128 +40,84 @@ Overview
 Column
 -----------------------------------------------------------------------
 
-### Job Title
-
+### *Job Title*
 ```{r}
 
-set.seed(1)
+jbs <- str_to_lower(DStidy_2022$Job_title)
+jbs <- gsub("[[:punct:]]"," ",jbs)
 
-##### ----- Job Title data ----- #####
+docs1 <- Corpus(VectorSource(jbs))
+docs1 <-docs1 %>% 
+  tm_map(removePunctuation) %>%  
+  tm_map(removeWords,c("and", "–"))
 
-# cleaning
+dtm1 <-  TermDocumentMatrix(docs1)
+matrix1 <- as.matrix(dtm1)
+words1 <- sort(rowSums(matrix1),
+               decreasing = TRUE)
 
-overview_jobtitle <- DStidy_2022 %>% select(Job_title)
+jbstitle <- data.frame(word1= names(words1),
+                       freq1 =words1)
 
-overview_jobtitle <- as.vector(overview_jobtitle)
+set.seed(500)
 
-overview_jobtitle_doc <- Corpus(VectorSource(overview_jobtitle))
-overview_jobtitle_doc <- overview_jobtitle_doc %>% 
-  tm_map(removeNumbers) %>% 
-  tm_map(removePunctuation) %>% 
-  tm_map(stripWhitespace)
-overview_jobtitle_doc <- tm_map(overview_jobtitle_doc, 
-                                content_transformer(tolower))
-overview_jobtitle_doc <- tm_map(overview_jobtitle_doc, 
-                                removeWords, 
-                                stopwords("english"))
-
-overview_jobtitle_dtm <- TermDocumentMatrix(overview_jobtitle_doc)
-
-overview_jobtitle_matrix <- as.matrix(overview_jobtitle_dtm)
-
-overview_jobtitle_words <- sort(rowSums(overview_jobtitle_matrix), decreasing=TRUE)
-
-overview_jobtitle_df <- data.frame(words=names(overview_jobtitle_words),
-                                   freq=overview_jobtitle_words)
-
-overview_jobtitle_df$words[overview_jobtitle_df$words=="adance"] <- "advance"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="birpython"] <- "biopython"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="dara"] <- "data"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="experiencehia"] <- "experience"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="dara"] <- "data"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="experiencehia"] <- "experience"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="intellegent"] <- "intelligent"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="per"] <- "permanenet"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="scienctist"] <- "scientist"
-overview_jobtitle_df$words[overview_jobtitle_df$words=="scientists"] <- "scientist"
-
-overview_jobtitle_df <- overview_jobtitle_df[!(row.names(overview_jobtitle_df) 
-                                             %in% c("-", "csenior", "early", 
-                                                    "fair", "sassqltableaupower")), ]
-
-# visualization
-
-ggplot(overview_jobtitle_df, aes(label=words, 
-                                 size=freq, 
-                                 color=factor(sample.int(10, 
-                                                         nrow(overview_jobtitle_df), 
-                                              replace = TRUE)))) + 
-  ggtitle("") +
-  geom_text_wordcloud_area() + 
-  scale_size_area(max_size = 45) + 
-  theme_bw() + 
-  theme(axis.line = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())
+wordcloud(words = jbstitle$word1,
+          freq = jbstitle$freq1,  
+          min.freq = 2,
+          max.words=35,
+          random.order=FALSE,
+          font=4,
+          family= "serif",
+          root.per=1.5,
+          scale = c(5,1.5),
+          colors = brewer.pal(8,"Dark2"))
 
 ```
 
-### Job Field
-
+### *Education Qualification* 
 ```{r}
 
-set.seed(1)
+edu <- str_to_lower(DStidy_2022$Educational_qualifications)
+edu <- gsub("[[:punct:]]"," ",edu)
 
-##### ----- Job Field data ----- #####
+edu <- edu %>% str_replace_all(c(
+  "bachelor's" ="bsc",
+  "bachelors" = "bsc",
+  "bachelor" = "bsc",
+  " bachelor" = "bsc",
+  "bsc's" ="bsc",
+  "master" = "msc",
+  "masters"="msc",
+  "masterss"="msc",
+  "mscs"="msc"))
 
-# cleaning
+docs2 <- Corpus(VectorSource(edu))
 
-overview_jobfield <- DStidy_2022 %>% select(Job_Field)
+docs2 <- tm_map(docs2,
+                removeWords,
+                c("any","etc","with","higher","and","other",
+                  "such","related","data","field","of"))
 
-overview_jobfield <- as.vector(overview_jobfield)
+dtm2 <-  TermDocumentMatrix(docs2)
+matrix2 <- as.matrix(dtm2)
+words2 <- sort(rowSums(matrix2),
+               decreasing = TRUE)
 
-overview_jobfield_doc <- Corpus(VectorSource(overview_jobfield))
-overview_jobfield_doc <- overview_jobfield_doc %>% 
-  tm_map(removeNumbers) %>% 
-  tm_map(removePunctuation) %>% 
-  tm_map(stripWhitespace)
-overview_jobfield_doc <- tm_map(overview_jobfield_doc, 
-                                content_transformer(tolower))
-overview_jobfield_doc <- tm_map(overview_jobfield_doc, 
-                                removeWords, 
-                                stopwords("english"))
+eduQua <- data.frame(word2= names(words2),
+                     freq2 =words2)
 
-overview_jobfield_dtm <- TermDocumentMatrix(overview_jobfield_doc)
+set.seed(2017)
 
-overview_jobfield_matrix <- as.matrix(overview_jobfield_dtm)
-
-overview_jobfield_words <- sort(rowSums(overview_jobfield_matrix), decreasing=TRUE)
-
-overview_jobfield_df <- data.frame(words=names(overview_jobfield_words),
-                                   freq=overview_jobfield_words)
-
-overview_jobfield_df$words[overview_jobfield_df$words=="developmwnt"] <- "development"
-overview_jobfield_df$words[overview_jobfield_df$words=="cdata"] <- "data"
-overview_jobfield_df$words[overview_jobfield_df$words=="eqipment"] <- "equipment"
-
-# visualization
-
-ggplot(overview_jobfield_df, aes(label=words, 
-                                 size=freq, 
-                                 color=factor(sample.int(10, 
-                                                         nrow(overview_jobfield_df), 
-                                                         replace = TRUE)))) + 
-  ggtitle("") +
-  geom_text_wordcloud_area() + 
-  scale_size_area(max_size = 30) + 
-  theme_bw() + 
-  theme(axis.line = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())
+wordcloud(words = eduQua$word2,
+          freq = eduQua$freq2,  
+          min.freq = 2,
+          max.words=45, 
+          random.order=FALSE,
+          font=4,
+          family= "serif",
+          root.per=1.5,
+          scale = c(4,1),
+          colors = brewer.pal(8,"Dark2"))
 
 ```
 
@@ -169,136 +125,96 @@ ggplot(overview_jobfield_df, aes(label=words,
 Column
 -----------------------------------------------------------------------
 
-### Education Qualification
-
+### *Job Category* 
 ```{r}
 
-set.seed(1)
+knw <- DStidy_2022$Job_Category
 
-##### ----- Education Qualifications ----- #####
+docs3 <- Corpus(VectorSource(knw))
+docs3 <- docs3 %>% 
+  tm_map(removePunctuation)
+docs3 <- tm_map(docs3,
+                removeWords,
+                c("with"," knowledge","and","from","for",
+                  "the","large"," etl ","using","that",
+                  "our","strong","including","methods"))
 
-# cleaning
+dtm3 <-  TermDocumentMatrix(docs3)
+matrix3 <- as.matrix(dtm3)
+words3 <- sort(rowSums(matrix3),
+               decreasing = TRUE)
 
-eduquali_data <- DStidy_2022 %>% 
-  select(Educational_qualifications)
+knwBase <- data.frame(word3=names(words3),
+                      freq3=words3)
 
-eduquali_data <- as.vector(eduquali_data)
-
-eduquali_data_doc <- Corpus(VectorSource(eduquali_data))
-
-eduquali_data_doc <- eduquali_data_doc %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace)
-
-eduquali_data_doc <- tm_map(eduquali_data_doc, 
-                            content_transformer(tolower))
-
-eduquali_data_doc <- tm_map(eduquali_data_doc, 
-                            removeWords, 
-                            stopwords("english"))
-
-eduquali_data_dtm <- TermDocumentMatrix(eduquali_data_doc)
-
-eduquali_data_matrix <- as.matrix(eduquali_data_dtm)
-
-eduquali_data_words <- sort(rowSums(eduquali_data_matrix), decreasing=TRUE)
-
-eduquali_data_df <- data.frame(words = names(eduquali_data_words),
-                               freq = eduquali_data_words)
-
-# selecting the words that show frequency greater than or equal 5
-eduquali_data_df_selected <- eduquali_data_df %>%
-  filter(freq >= 5)
-
-# correcting the spelling and dropping irrelevant words
-eduquali_data_df_selected$words[eduquali_data_df_selected$words=="nanana"] <- NA
-eduquali_data_df_selected$words[eduquali_data_df_selected$words=="field"] <- NA
-eduquali_data_df_selected$words[eduquali_data_df_selected$words=="related"] <- NA
-
-# omitting the rows with NA
-eduquali_data_df_used <- na.omit(eduquali_data_df_selected)
-
-# visualization
-
-ggplot(eduquali_data_df_used, aes(label=words, 
-                                  size=freq, 
-                                  color=factor(sample.int(10, 
-                                                         nrow(eduquali_data_df_used), 
-                                                         replace = TRUE)))) + 
-  ggtitle("") +
-  geom_text_wordcloud_area() + 
-  scale_size_area(max_size = 30) + 
-  theme_bw() + 
-  theme(axis.line = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())
+wordcloud(words = knwBase$word3,
+          freq = knwBase$freq3, 
+          min.freq = 2,
+          max.words=35, 
+          random.order=FALSE,
+          font=4,
+          family= "serif",
+          root.per=1.5,
+          scale = c(5,1.5),
+          colors = brewer.pal(8,"Dark2"))
 
 ```
 
-### Company Location
-
+### *Company Location* 
 ```{r}
 
-set.seed(1)
+# Data Cleaning 
+DStidy_2022$Country[DStidy_2022$Country == "110 Healthy Way, Folosm, CA"] <- "US"
+DStidy_2022$Country[DStidy_2022$Country == "United Kingdom"] <- "UK"
+DStidy_2022$Country[DStidy_2022$Country == "Sri Lnaka"] <- "Sri Lanka"
+DStidy_2022$Country[DStidy_2022$Country == "SL"] <- "Sri Lanka"
+DStidy_2022$Country[DStidy_2022$Country == "Bloomington, IN"  ] <- "US"
+DStidy_2022$Country[DStidy_2022$Country == "Edinburgh,London,Manchester"] <- "UK"
+DStidy_2022$Country[DStidy_2022$Country == "Nodia,Uttar Pradesh,India"] <- "India"
+DStidy_2022$Country[DStidy_2022$Country == "Melbone" ] <-  "Australia"
+DStidy_2022$Country[DStidy_2022$Country == "canada"] <- "Canada "
+DStidy_2022$Country[DStidy_2022$Country == "Pennsylvania" ] <- "US"  
+DStidy_2022$Country[DStidy_2022$Country == "united states"] <-  "US" 
+DStidy_2022$Country[DStidy_2022$Country ==  "Sri lanka" ] <- "Sri Lanka"
+DStidy_2022$Country[DStidy_2022$Country == "NewYork"] <- "US"
+DStidy_2022$Country[DStidy_2022$Country ==  "Sri lanka" ] <- "Sri Lanka"
+DStidy_2022$Country[DStidy_2022$Country == "santa monica,CA" ] <- "US"
+DStidy_2022$Country[DStidy_2022$Country ==  "Anaheim, CA"] <- "US"
+DStidy_2022$Country[DStidy_2022$Country ==  "Bengaluru, Karnataka, India"] <- "India"
+DStidy_2022$Country[DStidy_2022$Country == "United States"  ] <- "US"
+DStidy_2022$Country[DStidy_2022$Country ==  "Noida,Uttar Pradesh, India" ] <- "India"
+DStidy_2022$Country[DStidy_2022$Country == "Remote Work" ] <- "US"
+DStidy_2022$Country[DStidy_2022$Country ==  "USA" ] <- "US"
+DStidy_2022$Country[DStidy_2022$Country ==  "Canada " ] <- "Canada"
 
-##### ----- Country data ----- #####
+DStidy_2022$Country[DStidy_2022$Country %>% is.na()] <- "US"
 
-# cleaning
+coun <- str_to_upper(DStidy_2022$Country)
+coun<- gsub(" ","_",coun)
 
-overview_country <- DStidy_2022 %>% select(Country)
+docs4 <- Corpus(VectorSource(coun))
+docs4 <- tm_map(docs4,stripWhitespace)
+docs4 <- tm_map(docs4,content_transformer(str_to_title))
+dtm4 <-  TermDocumentMatrix(docs4)
 
-overview_country <- as.vector(overview_country)
+matrix4 <- as.matrix(dtm4)
+words4 <- sort(rowSums(matrix4),
+               decreasing = TRUE)
 
-overview_country_doc <- Corpus(VectorSource(overview_country))
-overview_country_doc <- overview_country_doc %>% 
-  tm_map(removeNumbers) %>% 
-  tm_map(removePunctuation) %>% 
-  tm_map(stripWhitespace)
-overview_country_doc <- tm_map(overview_country_doc, 
-                               content_transformer(tolower))
-overview_country_doc <- tm_map(overview_country_doc, 
-                               removeWords, 
-                               stopwords("english"))
+loc <- data.frame(word4 = names(words4),freq4 =words4)
 
-overview_country_dtm <- TermDocumentMatrix(overview_country_doc)
+set.seed(2017)
 
-overview_country_matrix <- as.matrix(overview_country_dtm)
-
-overview_country_words <- sort(rowSums(overview_country_matrix), decreasing=TRUE)
-
-overview_country_df <- data.frame(words=names(overview_country_words),
-                                  freq=overview_country_words)
-
-overview_country_df$words[overview_country_df$words=="lanka"] <- "srilanka"
-overview_country_df$words[overview_country_df$words=="states"] <- "unitedstates"
-overview_country_df$words[overview_country_df$words=="kingdom"] <- "unitedkingdom"
-overview_country_df$words[overview_country_df$words=="arab"] <- "unitedarabemirates"
-overview_country_df$words[overview_country_df$words=="arab"] <- "unitedarabemirates"
-overview_country_df$words[overview_country_df$words=="new"] <- "newzealand"
-
-overview_country_df <- overview_country_df[!(row.names(overview_country_df) 
-                                             %in% c("united", "sri", "emirates", 
-                                                    "csri", "czech")), ]
-
-# visualization
-
-ggplot(overview_country_df, aes(label=words, 
-                                size=freq, 
-                                color=factor(sample.int(10, 
-                                                          nrow(overview_country_df), 
-                                                          replace = TRUE)))) + 
-  ggtitle("") +
-  geom_text_wordcloud_area() + 
-  scale_size_area(max_size = 20) + 
-  theme_bw() + 
-  theme(axis.line = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())
+wordcloud(words = loc$word4,
+          freq = loc$freq4, 
+          min.freq = 2,
+          max.words=16, 
+          random.order=FALSE,
+          font=4,
+          family= "serif",
+          root.per=1.5,
+          scale = c(6,1.5),
+          colors = brewer.pal(8,"Dark2"))
 
 ```
 
