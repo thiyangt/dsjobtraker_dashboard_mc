@@ -222,25 +222,168 @@ wordcloud(words = loc$word4,
 Spatial Distributions
 ======================================================
 
-Row 
+```{r  include=FALSE}
+
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+library(data.table)
+library(countrycode)
+library(quantmod)
+library(formattable)
+
+
+#--------------------------------------------------#JOB TYPE
+
+df <- read_csv("DStidy_2022.csv")
+
+df <- df %>% separate(Job_title, into = c("word1", "word2",
+                                                    "word3", "word4"), 
+                                sep = " ") %>%
+                       unite("Job.Type", c("word1", "word2",
+                                           "word3", "word4"))
+
+# Categorizing job titles
+
+# data scientist
+df$Job.Type <-  gsub(".*_Data_Scien.*", "Data Scientist", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\Data_Sci.*", "Data Scientist", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\Data_sci.*", "Data Scientist", 
+                          df$Job.Type)
+df$Job.Type <-  gsub(".*_Scient.*", "Data Scientist", 
+                          df$Job.Type)
+df$Job.Type <-  gsub(".*_Python_Developer.*", "Data Scientist", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Software_Development_NA_NA", "Data Scientist", 
+                          df$Job.Type)
+
+
+# data analyst
+df$Job.Type <-  gsub("^\\Analy.*", "Data Analyst", 
+                          df$Job.Type)
+df$Job.Type <-  gsub(".*_Analy.*", "Data Analyst", 
+                          df$Job.Type)
+df$Job.Type <-  gsub(".*_Data.*", "Data Analyst", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\Data_Co.*", "Data Analyst", 
+                          df$Job.Type)
+
+# data engineer
+df$Job.Type <-  gsub(".*_Engineer.*", "Data Engineer", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Data_Lackhouse_Specialist/_BI", "Data Engineer", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Database_Administrator_NA_NA", "Data Engineer", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Data_Lackhouse_Specialist/_BI", "Data Engineer", 
+                          df$Job.Type)
+df$Job.Type <-  gsub(".*Machine_Learning.*", "Data Engineer", 
+                          df$Job.Type)
+
+
+# statistician
+df$Job.Type <-  gsub(".*Stat.*", "Statistician", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\Rese.*", "Statistician", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Bank_Compliance_Fair_Banking/Lending", "Statistician", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Biostatistician_NA_NA_NA", "Statistician", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Computational_Biologist_NA_NA", "Statistician", 
+                          df$Job.Type)
+
+
+# Other
+df$Job.Type <-  gsub("Business_Associate_-_Planning", "Other", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\C.*", "Other", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("D_&_A_Azure", "Other", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\IT.*", "Other", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("Product_Manager_NA_NA", "Other", 
+                          df$Job.Type)
+df$Job.Type <-  gsub("^\\Tech.*", "Other", 
+                          df$Job.Type)
+
+
+```
+
+column {data-width=400}
 -------------------------------------
 
 ### Spatial Distribution of proportion of Job Advertisments
     
+```{r Job advertisments map}
+
+new <- df %>%
+  select(c(Country, country_code)) %>%
+  group_by(country_code) %>%
+  count(Country) %>%
+  ungroup() %>%
+  mutate(Percentage = percent(n/sum(n)))
+
+# Extracting countries with more than 9 job advertisements
+new <- new %>% filter(Country %in% c("United States", "Sri Lanka", "Australia",
+                                     "United Kingdom", "Singapore", "Canada",
+                                     "India", "United Arab Emirates",
+                                     "Germany", "Qatar"))
+
+fig1 <- plot_ly(new, type='choropleth', locations=new$country_code, z=new$Percentage, text=~paste('Country: ', 
+                                                                                                 new$Country, '<br> Count: ', new$n, '<br> Percentage: ',new$Percentage),hoverinfo = 'text',colorscale="Viridis") %>%
+        layout(title = "Spatial Distribution of Proportion of Job Advertisments")
+
+fig1
+
+
+```
 
 ### Advertisment Distribution by country
 
+```{r}
 
+fig2 <- new %>%
+  plot_ly(
+  x = ~n,
+  y = ~reorder(Country,-desc(n)),
+  type = "bar",
+  orientation = "h"
+  ) %>%
+  layout(title = "Distribution of Job Advertisments by Country",
+         yaxis = list(title = " "), xaxis = list(title = "Total Number of Advertisments",categoryorder = "n"), barmode = 'stack')
 
-Row {.tabset .tabset-fade}
+fig2
+  
+```
+
+Row {}
 -------------------------------------
-   
-### Spatial Distribution by Job Type
 
- 
-### Spatial Distribution of Salary
+### Distribution by Job Type
 
-*The minimum annual salary of each country in USD
+```{r}
+new.data <- df %>%
+  select(c(Country, country_code, Job.Type)) %>%
+  filter(Country %in% c("United States", "Sri Lanka", "Australia",
+                                     "United Kingdom", "Singapore", "Canada")) %>%
+  group_by(Job.Type, Country) %>% count(Job.Type) %>%
+  filter(Job.Type %in% c("Data Analyst", "Data Scientist", "Data Engineer", 
+                         "Statistician"))
+
+new.data$Job.Type <- factor(new.data$Job.Type, levels = c("Data Analyst", "Data Scientist", "Data Engineer", "Statistician"))
+
+fig3 <- new.data %>% plot_ly(x = ~Country, y = ~n, type = 'bar',
+                             color = ~Job.Type, colors = "Dark2") %>%
+        layout(title = "Distribution of Job Types by Top Five Countries",
+         yaxis = list(title = "Total Count"), xaxis = list(title = "Country"))
+
+
+fig3
+```
     
 
 
@@ -854,21 +997,20 @@ Final_edu$degree_level <- factor(Final_edu$degree_level, levels = c("Other","PhD
 ``` 
 
 
-Column {data-width=200, .tabset}
+Column {data-width=200}
 -----------------------------------------------------------------------
 
 ### Educational Qualifications
 
 ```{r}
-plot1 <- Final_edu %>% plot_ly(x = ~total_count, y = ~degree_level, type = 'bar',color = Final_edu$degree_level, domain = list(x = c(0, 0.5), y = c(0, 1))) %>% 
-  layout(yaxis = list(title = " Minimum Education Qualification"),title= "Education Qualification",
-    xaxis = list(title = "Number of Job Vacancies",tickangle=-45))
-                               
-  # layout(
-  #   title= "Education Qualification",
-  #   xaxis = list(title = "Number of Job Vacancies",tickangle=-45 ,c("Other","Diploma","Bachelor's","Master's","PhD")) ,
-  #   yaxis = list(title = " Minimum Education Qualification"),font = list(color = 'black'))
+plot1 <- Final_edu %>% plot_ly(x = ~total_count, y = ~degree_level, type = 'bar',
+                               marker = list(color = '#CA3C97')) %>%
+  layout(
+    title= "Education Qualification",
+    xaxis = list(title = "Number of Job Vacancies",tickangle=-45 ,c("Other","Diploma","Bachelor's","Master's","PhD")) ,
+    yaxis = list(title = " Minimum Education Qualification"),font = list(color = 'black'))
 plot1
+
 ```
 
 
@@ -877,15 +1019,203 @@ plot1
 Salary 
 =====================================
 
+
+```{r ann, include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(tidyverse)
+library(DT)
+library(shiny)
+
+dfs <- read_csv("DStidy_2022.csv")
+
+dfs <- dfs %>% separate(Job_title, into = c("word1", "word2",
+                                                    "word3", "word4"), 
+                                sep = " ") %>%
+                       unite("Job.Type", c("word1", "word2",
+                                           "word3", "word4"))
+
+# Categorizing job titles
+
+# data scientist
+dfs$Job.Type <-  gsub(".*_Data_Scien.*", "Data Scientist", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\Data_Sci.*", "Data Scientist", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\Data_sci.*", "Data Scientist", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub(".*_Scient.*", "Data Scientist", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub(".*_Python_Developer.*", "Data Scientist", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Software_Development_NA_NA", "Data Scientist", 
+                          dfs$Job.Type)
+
+
+# data analyst
+dfs$Job.Type <-  gsub("^\\Analy.*", "Data Analyst", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub(".*_Analy.*", "Data Analyst", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub(".*_Data.*", "Data Analyst", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\Data_Co.*", "Data Analyst", 
+                          dfs$Job.Type)
+
+# data engineer
+dfs$Job.Type <-  gsub(".*_Engineer.*", "Data Engineer", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Data_Lackhouse_Specialist/_BI", "Data Engineer", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Database_Administrator_NA_NA", "Data Engineer", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Data_Lackhouse_Specialist/_BI", "Data Engineer", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub(".*Machine_Learning.*", "Data Engineer", 
+                          dfs$Job.Type)
+
+
+# statistician
+dfs$Job.Type <-  gsub(".*Stat.*", "Statistician", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\Rese.*", "Statistician", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Bank_Compliance_Fair_Banking/Lending", "Statistician", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Biostatistician_NA_NA_NA", "Statistician", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Computational_Biologist_NA_NA", "Statistician", 
+                          dfs$Job.Type)
+
+
+# Other
+dfs$Job.Type <-  gsub("Business_Associate_-_Planning", "Other", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\C.*", "Other", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("D_&_A_Azure", "Other", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\IT.*", "Other", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("Product_Manager_NA_NA", "Other", 
+                          dfs$Job.Type)
+dfs$Job.Type <-  gsub("^\\Tech.*", "Other", 
+                          dfs$Job.Type)
+
+
+data.salary <- dfs %>% select("Payment Frequency", "Currency", "Salary", "Job.Type",
+                             "Country")
+
+data.salary <- data.salary %>% drop_na()
+
+data.salary <- data.salary %>%
+  mutate(Salary = str_replace_all(Salary,c("," = "")))
+
+data.salary$Salary <- as.numeric(data.salary$Salary)
+
+data.salary <- data.salary %>% mutate(Currency = case_when(
+  Currency %in% c("NZ $", "NZD") ~ "NZD",
+  Currency %in% c("US $", "USD") ~ "USD",
+  Currency %in% c("Sterling Pounds", "GBP", "Sterling Pound", "Pounds") ~ "GBP",
+  Currency == "AUD" ~ "AUD",
+  Currency == "SGD" ~ "SGD",
+  Currency %in% c("Euro", "EUR") ~ "EUR",
+  Currency == "CZK" ~ "CZK",
+  Currency == "Yen" ~ "JPY"
+))
+
+
+data.salary <- data.salary %>% mutate(`Payment Frequency` = case_when(
+  `Payment Frequency` == "daily" ~ "daily",
+  `Payment Frequency` %in% c("annual", "yearly") ~ "yearly",
+  `Payment Frequency` == "hourly" ~ "hourly",
+  `Payment Frequency` == "monthly" ~ "monthly"
+))
+
+make_common_salary <- function(data_raw){
+  
+  NZD_ex <- 0.61
+  GBP_ex <- 1.27
+  AUD_ex <- 0.65
+  SGD_ex <- 0.74
+  EUR_ex <- 1.1
+  CZK_ex <- 0.045
+  JPY_ex <- 0.007
+  
+  
+  data_raw %>%
+    mutate(Salary.in.USD = case_when(
+             Currency == "NZD" ~ Salary * NZD_ex,
+             Currency == "GBP" ~ Salary * GBP_ex,
+             Currency == "AUD" ~ Salary * AUD_ex,
+             Currency == "SGD" ~ Salary * SGD_ex,
+             Currency == "EUR" ~ Salary * EUR_ex,
+             Currency == "CZK" ~ Salary * CZK_ex,
+             Currency == "JPY" ~ Salary * JPY_ex,
+             TRUE ~ Salary
+           ),
+           Salary.in.USD = case_when(
+             `Payment Frequency` == "hourly" ~ Salary.in.USD * 40 * 52,
+             `Payment Frequency` == "daily" ~ Salary.in.USD * 5 * 52,
+             `Payment Frequency` == "monthly" ~ Salary.in.USD *  12,
+             `Payment Frequency` == "yearly" ~ Salary.in.USD,
+             TRUE ~ Salary,
+           ))
+}
+
+data.salary <- make_common_salary(data.salary)
+
+
+```
+
 Row
 -------------------------------------
 
-### Distibution of Average of Minimum Salaries by Job 
+### Distibution of Minimum Salary by Job 
 
+```{r}
+
+df_1 <- subset(data.salary, data.salary$Salary.in.USD < 250000) %>%
+        filter(Job.Type %in% c("Data Analyst", "Data Scientist", "Data Engineer", 
+                         "Statistician"))
+
+df_1$Job.Type <- factor(df_1$Job.Type, levels = c( "Statistician", "Data Engineer", "Data Scientist", "Data Analyst"))
+
+
+salary.plot1 <- plot_ly(df_1, x = df_1$Salary.in.USD,
+              color = df_1$Job.Type,
+              colors = "Dark2",
+              type = "box") %>%
+  layout(title = "Yearly Salary by Job Type (in USD)",
+         xaxis = list(title = "Yearly Salary in USD" ,
+                      zeroline = FALSE)) 
+
+hide_legend(salary.plot1)
+
+```
 
 Row
 ------------------------------------
-### Distibution of Average of Minimum Salaries by Countries
+### Distibution of Minimum Salary by Countries
+
+```{r}
+df_1 <- df_1 %>% filter(Country %in% c("United States", "United Kingdom",
+                                               "Australia", "Singapore"))
+df_1$Country <- factor(df_1$Country, levels = c( "United States", "Australia", "United Kingdom", "Singapore"))
+
+salary.plot2 <- plot_ly(df_1,
+                        x = df_1$Salary.in.USD,
+                        color = df_1$Country,
+                        colors = "Set1",
+                        type = "box") %>%
+                        layout(title = "Yearly Salary by Country (in USD)",
+                        xaxis = list(title = "Yearly Salary in USD" ,
+                        zeroline = FALSE))
+
+hide_legend(salary.plot2)
+
+```
+
 
 
 Inspiration
@@ -897,7 +1227,5 @@ knitr::include_graphics("inspiration_tab_image.png")
 
 ```
 
-Our Team
-======================================================
 
 
