@@ -5,12 +5,8 @@ output:
     orientation: column
     vertical_layout: fill
 ---
-<style>
-.tab-content{
-position:relative;
-top:50px;
-}
-</style>
+
+
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(wordcloud)
