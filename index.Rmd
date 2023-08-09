@@ -24,6 +24,8 @@ library(data.table)
 library(countrycode)
 library(quantmod)
 library(formattable)
+library(ggplot2)
+library(ggwordcloud)
 
 DStidy_2022 <- read_csv("DStidy_2022.csv")
 ```
@@ -35,17 +37,248 @@ Column
 
 ### Job Title
 
+```{r}
 
-### Education Qualification
+set.seed(1)
+
+##### ----- Job Title data ----- #####
+
+overview_jobtitle <- DStidy_2022 %>% select(Job_title)
+
+overview_jobtitle <- as.vector(overview_jobtitle)
+
+overview_jobtitle_doc <- Corpus(VectorSource(overview_jobtitle))
+overview_jobtitle_doc <- overview_jobtitle_doc %>% 
+  tm_map(removeNumbers) %>% 
+  tm_map(removePunctuation) %>% 
+  tm_map(stripWhitespace)
+overview_jobtitle_doc <- tm_map(overview_jobtitle_doc, 
+                                content_transformer(tolower))
+overview_jobtitle_doc <- tm_map(overview_jobtitle_doc, 
+                                removeWords, 
+                                stopwords("english"))
+
+overview_jobtitle_dtm <- TermDocumentMatrix(overview_jobtitle_doc)
+
+overview_jobtitle_matrix <- as.matrix(overview_jobtitle_dtm)
+
+overview_jobtitle_words <- sort(rowSums(overview_jobtitle_matrix), decreasing=TRUE)
+
+overview_jobtitle_df <- data.frame(words=names(overview_jobtitle_words),
+                                   freq=overview_jobtitle_words)
+
+overview_jobtitle_df$words[overview_jobtitle_df$words=="adance"] <- "advance"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="birpython"] <- "biopython"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="dara"] <- "data"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="experiencehia"] <- "experience"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="dara"] <- "data"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="experiencehia"] <- "experience"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="intellegent"] <- "intelligent"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="per"] <- "permanenet"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="scienctist"] <- "scientist"
+overview_jobtitle_df$words[overview_jobtitle_df$words=="scientists"] <- "scientist"
+
+overview_jobtitle_df <- overview_jobtitle_df[!(row.names(overview_jobtitle_df) 
+                                             %in% c("-", "csenior", "early", 
+                                                    "fair", "sassqltableaupower")), ]
+
+ggplot(overview_jobtitle_df, aes(label=words, 
+                                 size=freq, 
+                                 color=factor(sample.int(10, 
+                                                         nrow(overview_jobtitle_df), 
+                                              replace = TRUE)))) + 
+  ggtitle("") +
+  geom_text_wordcloud_area() + 
+  scale_size_area(max_size = 45) + 
+  theme_bw() + 
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+```
+
+### Job Field
+
+```{r}
+
+set.seed(1)
+
+##### ----- Job Field data ----- #####
+
+overview_jobfield <- DStidy_2022 %>% select(Job_Field)
+
+overview_jobfield <- as.vector(overview_jobfield)
+
+overview_jobfield_doc <- Corpus(VectorSource(overview_jobfield))
+overview_jobfield_doc <- overview_jobfield_doc %>% 
+  tm_map(removeNumbers) %>% 
+  tm_map(removePunctuation) %>% 
+  tm_map(stripWhitespace)
+overview_jobfield_doc <- tm_map(overview_jobfield_doc, 
+                                content_transformer(tolower))
+overview_jobfield_doc <- tm_map(overview_jobfield_doc, 
+                                removeWords, 
+                                stopwords("english"))
+
+overview_jobfield_dtm <- TermDocumentMatrix(overview_jobfield_doc)
+
+overview_jobfield_matrix <- as.matrix(overview_jobfield_dtm)
+
+overview_jobfield_words <- sort(rowSums(overview_jobfield_matrix), decreasing=TRUE)
+
+overview_jobfield_df <- data.frame(words=names(overview_jobfield_words),
+                                   freq=overview_jobfield_words)
+
+overview_jobfield_df$words[overview_jobfield_df$words=="developmwnt"] <- "development"
+overview_jobfield_df$words[overview_jobfield_df$words=="cdata"] <- "data"
+overview_jobfield_df$words[overview_jobfield_df$words=="eqipment"] <- "equipment"
+
+ggplot(overview_jobfield_df, aes(label=words, 
+                                 size=freq, 
+                                 color=factor(sample.int(10, 
+                                                         nrow(overview_jobfield_df), 
+                                                         replace = TRUE)))) + 
+  ggtitle("") +
+  geom_text_wordcloud_area() + 
+  scale_size_area(max_size = 30) + 
+  theme_bw() + 
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+```
+
 
 Column
 -----------------------------------------------------------------------
 
-### Knowledge Base
+### Education Qualification
 
+```{r}
+
+set.seed(1)
+
+##### ----- Education Qualifications ----- #####
+
+eduquali_data <- DStidy_2022 %>% 
+  select(Educational_qualifications)
+
+eduquali_data <- as.vector(eduquali_data)
+
+eduquali_data_doc <- Corpus(VectorSource(eduquali_data))
+
+eduquali_data_doc <- eduquali_data_doc %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace)
+
+eduquali_data_doc <- tm_map(eduquali_data_doc, 
+                            content_transformer(tolower))
+
+eduquali_data_doc <- tm_map(eduquali_data_doc, 
+                            removeWords, 
+                            stopwords("english"))
+
+eduquali_data_dtm <- TermDocumentMatrix(eduquali_data_doc)
+
+eduquali_data_matrix <- as.matrix(eduquali_data_dtm)
+
+eduquali_data_words <- sort(rowSums(eduquali_data_matrix), decreasing=TRUE)
+
+eduquali_data_df <- data.frame(words = names(eduquali_data_words),
+                               freq = eduquali_data_words)
+
+# selecting the words that show frequency greater than or equal 5
+eduquali_data_df_selected <- eduquali_data_df %>%
+  filter(freq >= 5)
+
+# correcting the spelling and dropping irrelevant words
+eduquali_data_df_selected$words[eduquali_data_df_selected$words=="nanana"] <- NA
+eduquali_data_df_selected$words[eduquali_data_df_selected$words=="field"] <- NA
+eduquali_data_df_selected$words[eduquali_data_df_selected$words=="related"] <- NA
+
+# omitting the rows with NA
+eduquali_data_df_used <- na.omit(eduquali_data_df_selected)
+
+ggplot(eduquali_data_df_used, aes(label=words, 
+                                  size=freq, 
+                                  color=factor(sample.int(10, 
+                                                         nrow(eduquali_data_df_used), 
+                                                         replace = TRUE)))) + 
+  ggtitle("") +
+  geom_text_wordcloud_area() + 
+  scale_size_area(max_size = 30) + 
+  theme_bw() + 
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+```
 
 ### Company Location
 
+```{r}
+
+set.seed(1)
+
+##### ----- Country data ----- #####
+
+overview_country <- DStidy_2022 %>% select(Country)
+
+overview_country <- as.vector(overview_country)
+
+overview_country_doc <- Corpus(VectorSource(overview_country))
+overview_country_doc <- overview_country_doc %>% 
+  tm_map(removeNumbers) %>% 
+  tm_map(removePunctuation) %>% 
+  tm_map(stripWhitespace)
+overview_country_doc <- tm_map(overview_country_doc, 
+                               content_transformer(tolower))
+overview_country_doc <- tm_map(overview_country_doc, 
+                               removeWords, 
+                               stopwords("english"))
+
+overview_country_dtm <- TermDocumentMatrix(overview_country_doc)
+
+overview_country_matrix <- as.matrix(overview_country_dtm)
+
+overview_country_words <- sort(rowSums(overview_country_matrix), decreasing=TRUE)
+
+overview_country_df <- data.frame(words=names(overview_country_words),
+                                  freq=overview_country_words)
+
+overview_country_df$words[overview_country_df$words=="lanka"] <- "srilanka"
+overview_country_df$words[overview_country_df$words=="states"] <- "unitedstates"
+overview_country_df$words[overview_country_df$words=="kingdom"] <- "unitedkingdom"
+overview_country_df$words[overview_country_df$words=="arab"] <- "unitedarabemirates"
+overview_country_df$words[overview_country_df$words=="arab"] <- "unitedarabemirates"
+overview_country_df$words[overview_country_df$words=="new"] <- "newzealand"
+
+overview_country_df <- overview_country_df[!(row.names(overview_country_df) 
+                                             %in% c("united", "sri", "emirates", 
+                                                    "csri", "czech")), ]
+ggplot(overview_country_df, aes(label=words, 
+                                size=freq, 
+                                color=factor(sample.int(10, 
+                                                          nrow(overview_country_df), 
+                                                          replace = TRUE)))) + 
+  ggtitle("") +
+  geom_text_wordcloud_area() + 
+  scale_size_area(max_size = 20) + 
+  theme_bw() + 
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+```
 
 
 Spatial Distributions
