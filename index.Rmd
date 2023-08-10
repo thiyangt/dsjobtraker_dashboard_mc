@@ -380,30 +380,6 @@ fig3 <- new.data %>% plot_ly(x = ~Country, y = ~n, type = 'bar',
 
 fig3
 ```
-    
-
-
-
-Job Fields
-======================================================
-
-Column
---------------------------------------------------------------
-
-### Composition of Job Fields
-
-
-
-Column {.tabset .tabset-fade}
---------------------------------------------------------------
-
-### R and Python Requirements of Job Fields
-
-
-### Tableau and Microsoft Power BI Requirements of Job Fields
-
-
-### Minimum experience needed in Job Fields
 
 
 English Requirement
@@ -817,25 +793,8 @@ d2 %>% plot_ly(x = ~Frequency, y = ~reorder(Database_and_Query_languages, Freque
 ```
 
 
-Soft Skills
-======================================================
 
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Composition of demanded Soft Skills
-
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-### Demanded Soft Skills according to the Job Field
-
-
-
-
-
-Knowledge and Skills
+Knowledge and Skills by Job Category
 ======================================================
 
 ```{r, message=FALSE, include=FALSE}
@@ -950,6 +909,174 @@ df22 <- df22 %>% group_by(Skills,Job_Category) %>% count()
 p3<- ggdotchart(df22,x = "Skills" ,y="n",color = "Job_Category",palette = c("#00AFBB","#E7B800","#FC4E07","#FF1493","#7FFFD4"),sorting = "asc",sort.by.groups=TRUE,add="segments",add.params = list(color="lightgray",size=2),dot.size = 4,ggtheme =theme_pubclean())+ font("x.text",size=8,vjust=0.5)+labs(x="Required Skills ",y="Count")
 
 ggpar(p3,legend.title = "")%>%ggplotly()%>%layout(legend=list(orientation="h",xanchor="center",x=0.5,y=1.6))
+```
+
+
+Job Fields
+======================================================
+
+Column
+--------------------------------------------------------------
+
+### Composition of Job Fields
+
+```{r}
+library(dplyr)
+df <- read_csv("DStidy_2022.csv")
+
+# Function to categorize data science job fields
+categorize_data_science_job <- function(job_field) {
+  if (grepl("IT|Software|Developer|Engineer", job_field, ignore.case = TRUE)) {
+    return("Information technology")
+  } else if (grepl("Consultant|Manager|Analyst|Advisor", job_field, ignore.case = TRUE)) {
+    return("Professional services")
+  } else if (grepl("Telecom|Communication|Network", job_field, ignore.case = TRUE)) {
+    return("Telecommunication")
+  } else if (grepl("Manufacturing|Analytics|Specialist", job_field, ignore.case = TRUE)) {
+    return("Manufacturing")
+  } else if (grepl("Finance|Financial|Quantitative|Banking", job_field, ignore.case = TRUE)) {
+    return("Finance")
+  } else if (grepl("Health|Medical|Healthcare|Hospitals", job_field, ignore.case = TRUE)) {
+    return("Health")
+  } else if (grepl("E-commerce|Online Retail", job_field, ignore.case = TRUE)) {
+    return("E commerce")
+  } else if (grepl("Insurance|Actuary", job_field, ignore.case = TRUE)) {
+    return("Insurance")
+  } else if (grepl("Teacher|Education|Instructor|Lecturer", job_field, ignore.case = TRUE)) {
+    return("Education")
+  } else if (grepl("Agriculture|Farm|Agricultural", job_field, ignore.case = TRUE)) {
+    return("Agriculture")
+  } else {
+    return("Other")
+  }
+}
+
+# Apply categorization function to each data science job field
+df$`Job Field `<- sapply(df$Job_Field, categorize_data_science_job)
+
+view(df)
+
+```
+
+
+```{r}
+
+jf_counts <- df %>%
+  count(`Job Field `) %>% 
+  mutate(`Job Field ` = fct_reorder(factor(`Job Field `),n)) 
+
+l <- levels(jf_counts$`Job Field `)
+
+jf_counts %>% 
+  mutate(`Job Field ` = fct_relevel(`Job Field `,c("Other",l[l != "Other"]))) %>% 
+  ggplot(aes(x = `Job Field `,y = n))+
+  geom_bar(stat="identity")+
+  coord_flip()
+```
+
+
+
+Column {.tabset .tabset-fade}
+--------------------------------------------------------------
+
+### R and Python Requirements of Job Fields
+
+```{r}
+df <- df %>%
+  mutate(R = as.numeric(R), Python = as.numeric(Python)) # Convert columns to numeric
+
+
+```
+
+```{r}
+
+
+df.1 <- df %>%
+  filter(!is.na(`Job Field `))   # Remove rows with missing values in 'Job Field' column
+
+df.1 <- df %>%
+  group_by(`Job Field `) %>%
+  summarize(
+    Total = sum(R, na.rm = TRUE) + sum(Python, na.rm = TRUE),
+    R = sum(R, na.rm = TRUE) * 100 / Total,
+    Python = sum(Python, na.rm = TRUE) * 100 / Total
+  ) %>%
+  ungroup()
+
+# Make sure levels are unique before reordering
+df.1$`Job Field ` <- fct_inorder(df.1$`Job Field `)
+
+df.1 <- df.1 %>%
+  mutate(`Job Field ` = fct_reorder(`Job Field `, R))
+
+
+df.1 %>%  pivot_longer(cols = c("R", "Python"), names_to = "Language", values_to = "Counts") %>%
+ mutate(`Job Field ` = fct_relevel(`Job Field `,c("Other",l[l != "Other"]))) %>%  
+  ggplot(aes(x = `Job Field `, y = Counts, fill = Language)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = c("#306998", "#919198")) +
+  labs(x = "Job Field", y = "Percentage Proportion within Job Field")
+```
+
+
+### Tableau and Microsoft Power BI Requirements of Job Fields
+
+```{r}
+df <- df %>%
+  mutate(Tableau = as.numeric(Tableau), `Microsoft Power BI` = as.numeric(`Microsoft Power BI`)) # Convert columns to numeric
+
+
+```
+
+```{r}
+
+df.2 <- df %>%
+  filter(!is.na(`Job Field `))   # Remove rows with missing values in 'Job Field' column
+
+
+df.2 <- df.2 %>% 
+  group_by(`Job Field `) %>% 
+  summarize(Total = sum(Tableau) + sum(`Microsoft Power BI`),
+            Tableau= sum(Tableau)*100/Total,`Microsoft Power BI` = sum(`Microsoft Power BI`)*100/Total) %>%
+  ungroup() 
+
+# Make sure levels are unique before reordering
+df.2$`Job Field ` <- fct_inorder(df.2$`Job Field `)
+
+df.2 <- df.2 %>%
+  mutate(`Job Field ` = fct_reorder(`Job Field `, Tableau))
+
+
+df.2 %>%  pivot_longer(cols= c("Tableau","Microsoft Power BI"), names_to = "Language",values_to = "Counts") %>%
+ mutate(`Job Field ` = fct_relevel(`Job Field `,c("Other",l[l != "Other"]))) %>%  
+  ggplot(aes(x = `Job Field `, y = Counts, fill = Language)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = c("#ffba01","#c7233b")) +
+  labs(x = "Job Field", y = "Percentage Proportion within Job Field")
+
+```
+
+### Minimum experience needed in Job Fields
+
+
+```{r}
+
+# Filter out rows with NA in 'Min Exp' and making it numerical
+df <- df[!is.na(df$`Minimum Experience in Years`), ]
+df$`Minimum Experience in Years` <- as.numeric(df$`Minimum Experience in Years`)
+```
+
+```{r}
+# Create a horizontal grouped box plot
+df %>% 
+  ggplot(aes(x = `Job Field `, y = `Minimum Experience in Years`))+
+  geom_boxplot()+
+  coord_flip()
+  
 ```
 
 Education
