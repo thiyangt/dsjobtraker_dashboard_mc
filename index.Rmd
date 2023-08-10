@@ -697,6 +697,63 @@ ggplot(data_english_req_job_temp, aes(fill=`English Requirement`, y=Job_Category
 ```
 
 
+Education
+======================================================
+
+```{r , include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(dplyr)
+```
+
+```{r data}
+edu <- DStidy_2022 %>% select("BSc_needed","MSc_needed","PhD_needed")
+# convert data set into numeric
+edu1 <- as.data.frame(apply(edu, 2, as.numeric))
+education <- replace(edu1, is.na(edu1), 1)
+d <- education %>%
+  rowwise() %>%
+  mutate(degree = sum(BSc_needed,MSc_needed,PhD_needed, na.rm = T))
+
+# Education qualification is classified based on the minimum level of education.
+for(i in 1:nrow(d)){
+ if((d[i,1] == 1 & d[i,4]>=1) == TRUE){  # BSc
+    d$V3[i] <- "Bachelor's"
+  }else if((d[i,1]== 0 & d[i,2] == 1 & d[i,4]>=1) == TRUE){  # MSc
+    d$V3[i] <- "Master's"
+  }else if ((d[i,3] == 1 & d[i,4]==1) == TRUE){ # PhD
+    d$V3[i] <- "PhD"   
+  }else if (( d[i,4]==0 ) == TRUE){  
+    d$V3[i] <- "Other"
+ 
+  }}  # other - There is no mention of a degree level, so there could be a different educational qualification. qualification 
+
+d <- d %>% rename(degree_level = V3)
+d <- d %>% select(-`degree`)
+Final_edu <- d %>% group_by(degree_level) %>% 
+  summarise(total_count=n(),
+            .groups = 'drop')
+Final_edu$degree_level <- factor(Final_edu$degree_level, levels = c("Other","PhD","Master's","Bachelor's"))
+``` 
+
+
+Column {data-width=200}
+-----------------------------------------------------------------------
+
+### Educational Qualifications
+
+```{r}
+plot1 <- Final_edu %>% plot_ly(x = ~total_count, y = ~degree_level, type = 'bar',
+                               marker = list(color = '#CA3C97')) %>%
+  layout(
+    title= "Education Qualification",
+    xaxis = list(title = "Number of Job Vacancies",tickangle=-45 ,c("Other","Diploma","Bachelor's","Master's","PhD")) ,
+    yaxis = list(title = " Minimum Education Qualification"),font = list(color = 'black'))
+plot1
+
+```
+
+
 Experience
 ======================================================
 
@@ -802,7 +859,6 @@ plot_ly(data2,
          yaxis = list(title = "Minimum Required Experience in Years"), showlegend = FALSE)
 
 ```
-
 
 
 
@@ -1078,63 +1134,6 @@ p3<- ggdotchart(df22,x = "Skills" ,y="n",color = "Job_Category",palette = c("#00
 ggpar(p3,legend.title = "")%>%ggplotly()%>%layout(legend=list(orientation="h",xanchor="center",x=0.5,y=1.6))
 ```
 
-
-
-Education
-======================================================
-
-```{r , include=FALSE}
-library(flexdashboard)
-library(plotly)
-library(dplyr)
-```
-
-```{r data}
-edu <- DStidy_2022 %>% select("BSc_needed","MSc_needed","PhD_needed")
-# convert data set into numeric
-edu1 <- as.data.frame(apply(edu, 2, as.numeric))
-education <- replace(edu1, is.na(edu1), 1)
-d <- education %>%
-  rowwise() %>%
-  mutate(degree = sum(BSc_needed,MSc_needed,PhD_needed, na.rm = T))
-
-# Education qualification is classified based on the minimum level of education.
-for(i in 1:nrow(d)){
- if((d[i,1] == 1 & d[i,4]>=1) == TRUE){  # BSc
-    d$V3[i] <- "Bachelor's"
-  }else if((d[i,1]== 0 & d[i,2] == 1 & d[i,4]>=1) == TRUE){  # MSc
-    d$V3[i] <- "Master's"
-  }else if ((d[i,3] == 1 & d[i,4]==1) == TRUE){ # PhD
-    d$V3[i] <- "PhD"   
-  }else if (( d[i,4]==0 ) == TRUE){  
-    d$V3[i] <- "Other"
- 
-  }}  # other - There is no mention of a degree level, so there could be a different educational qualification. qualification 
-
-d <- d %>% rename(degree_level = V3)
-d <- d %>% select(-`degree`)
-Final_edu <- d %>% group_by(degree_level) %>% 
-  summarise(total_count=n(),
-            .groups = 'drop')
-Final_edu$degree_level <- factor(Final_edu$degree_level, levels = c("Other","PhD","Master's","Bachelor's"))
-``` 
-
-
-Column {data-width=200}
------------------------------------------------------------------------
-
-### Educational Qualifications
-
-```{r}
-plot1 <- Final_edu %>% plot_ly(x = ~total_count, y = ~degree_level, type = 'bar',
-                               marker = list(color = '#CA3C97')) %>%
-  layout(
-    title= "Education Qualification",
-    xaxis = list(title = "Number of Job Vacancies",tickangle=-45 ,c("Other","Diploma","Bachelor's","Master's","PhD")) ,
-    yaxis = list(title = " Minimum Education Qualification"),font = list(color = 'black'))
-plot1
-
-```
 
 
 
