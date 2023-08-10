@@ -374,7 +374,7 @@ new.data$Job.Type <- factor(new.data$Job.Type, levels = c("Data Analyst", "Data 
 
 fig3 <- new.data %>% plot_ly(x = ~Country, y = ~n, type = 'bar',
                              color = ~Job.Type, colors = "Dark2") %>%
-        layout(title = "Distribution of Job Types by Top Five Countries",
+        layout(title = "Distribution of Job Types by Top Six Countries",
          yaxis = list(title = "Total Count"), xaxis = list(title = "Country"))
 
 
@@ -583,7 +583,7 @@ column{.tabset}
 
 ```{r}
 DStidy_2022 <- DStidy_2022 %>% mutate(`Job_Category` = case_when(
-   `Job_Category` %in% c("Business Analytics","Business/Systems Analysts","Finance and Sales","Business Development and Sales","Administrative","Human Resources Services", "Consulting, Information Technology, and Sales","Information Services","IT Services") ~ "Buisness Analyst",
+   `Job_Category` %in% c("Business Analytics","Business/Systems Analysts","Finance and Sales","Business Development and Sales","Administrative","Human Resources Services", "Consulting, Information Technology, and Sales","Information Services","IT Services") ~ "Business Analyst",
   
    `Job_Category` %in% c("Data Science","Database Systems","Statistics","Data science","Research, Consulting, and Analyst","Actuarial Science","Information Technology, Analyst,and Science","Machine Learning","AI", "Artificial Intelligence") ~ "Data Scientist",
  
