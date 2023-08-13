@@ -39,11 +39,11 @@ Contact: ttalagala@sjp.ac.lk
 
 **Senanayake MB:** Data cleaning, overview and inspiration panels development
 
-**Atapattu KN:** Job fields and foft skills panels development
+**Atapattu KN:** Data cleaning, Job fields and foft skills panels development
 
-**Siriwardene K:**  English requirement, Knowledge and skills panels development
+**Siriwardene K:**  Data cleaning, English requirement, Knowledge and skills panels development
 
-**Wickramrathne T:** Experience and education panels development
+**Wickramrathne T:** Data cleaning, Experience and education panels development
 
 **Copyrights: All rights reserved**
 
