@@ -31,15 +31,15 @@ Contact: ttalagala@sjp.ac.lk
 
 ### Author contributions:
 
-**Talagala TS:** idea generation, idea development, initial dashboard format development, dashboard plan development, project supervisory
+**Talagala TS:** Idea generation, idea development, initial dashboard format development, dashboard plan development, hosting dashboar, project supervisory
 
-**Perera HLS:** Data cleaning, Software and skills/ Software skills panel development
+**Perera HLS:** Data cleaning, software and skills/ software skills panel development
 
-**Dissanayake S:** Data cleaning, Spatial distribution and salary development
+**Dissanayake S:** Data cleaning, spatial distribution and salary development
 
-**Senanayake MB:** Data cleaning, Overview and inspiration panels development
+**Senanayake MB:** Data cleaning, overview and inspiration panels development
 
-**Atapattu KN:** Job fields and Soft skills panels development
+**Atapattu KN:** Job fields and foft skills panels development
 
 **Siriwardene K:**  English requirement, Knowledge and skills panels development
 
