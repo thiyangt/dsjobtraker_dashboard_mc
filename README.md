@@ -31,7 +31,7 @@ Contact: ttalagala@sjp.ac.lk
 
 ### Author contributions:
 
-**Talagala TS:** Idea generation, idea development, initial dashboard format development, dashboard plan development, hosting dashboar, project supervisory
+**Talagala TS:** Idea generation, idea development, initial dashboard format development, dashboard plan development, hosting dashboard, project supervisory
 
 **Perera HLS:** Data cleaning, software and skills/ software skills panel development
 
