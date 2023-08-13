@@ -23,7 +23,7 @@ The dashboard was written using the R programming language. The dashboard is ful
 
 ## Please cite the work as follows:
 
-Talagala TS*, Perera HLS, Dissanayake S, Senanayake MB, Atapattu KN, Siriwardene K. DSjobtraker: What are the qualifications and skills that a data scientist, statistician, or data analyst must possess? link: https://github.com/thiyangt/dsjobtraker_dashboard_mc
+Talagala TS*, Perera HLS, Dissanayake S, Senanayake MB, Atapattu KN, Siriwardene K, Wickramrathne T. DSjobtraker: What are the qualifications and skills that a data scientist, statistician, or data analyst must possess? link: https://github.com/thiyangt/dsjobtraker_dashboard_mc
 
 Corresponding author: Talagala TS
 
@@ -32,7 +32,7 @@ Contact: ttalagala@sjp.ac.lk
 **Copyrights: All rights reserved**
 
 
-### Here are some pictures we took at the exhibition:
+> Here are some pictures we took at the exhibition.
 
 
 ![](img/img5.jpg)
