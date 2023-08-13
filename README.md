@@ -29,6 +29,22 @@ Corresponding author: Talagala TS
 
 Contact: ttalagala@sjp.ac.lk
 
+### Author contributions:
+
+**Talagala TS:** idea generation, idea development, initial dashboard format development, dashboard plan development, project supervisory
+
+**Perera HLS:** Data cleaning, Software and skills/ Software skills panel development
+
+**Dissanayake S:** Data cleaning, Spatial distribution and salary development
+
+**Senanayake MB:** Data cleaning, Overview and inspiration panels development
+
+**Atapattu KN:** Job fields and Soft skills panels development
+
+**Siriwardene K:**  English requirement, Knowledge and skills panels development
+
+**Wickramrathne T:** Experience and education panels development
+
 **Copyrights: All rights reserved**
 
 
