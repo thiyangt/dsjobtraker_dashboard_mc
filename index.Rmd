@@ -1225,67 +1225,67 @@ dfs$Job.Type <-  gsub("^\\Tech.*", "Other",
                           dfs$Job.Type)
 
 
-data.salary <- dfs %>% select("Payment Frequency", "Currency", "Salary", "Job.Type",
-                             "Country")
-
-data.salary <- data.salary %>% drop_na()
-
-data.salary <- data.salary %>%
-  mutate(Salary = str_replace_all(Salary,c("," = "")))
-
-data.salary$Salary <- as.numeric(data.salary$Salary)
-
-data.salary <- data.salary %>% mutate(Currency = case_when(
-  Currency %in% c("NZ $", "NZD") ~ "NZD",
-  Currency %in% c("US $", "USD") ~ "USD",
-  Currency %in% c("Sterling Pounds", "GBP", "Sterling Pound", "Pounds") ~ "GBP",
-  Currency == "AUD" ~ "AUD",
-  Currency == "SGD" ~ "SGD",
-  Currency %in% c("Euro", "EUR") ~ "EUR",
-  Currency == "CZK" ~ "CZK",
-  Currency == "Yen" ~ "JPY"
-))
-
-
-data.salary <- data.salary %>% mutate(`Payment Frequency` = case_when(
-  `Payment Frequency` == "daily" ~ "daily",
-  `Payment Frequency` %in% c("annual", "yearly") ~ "yearly",
-  `Payment Frequency` == "hourly" ~ "hourly",
-  `Payment Frequency` == "monthly" ~ "monthly"
-))
-
-make_common_salary <- function(data_raw){
-  
-  NZD_ex <- 0.61
-  GBP_ex <- 1.27
-  AUD_ex <- 0.65
-  SGD_ex <- 0.74
-  EUR_ex <- 1.1
-  CZK_ex <- 0.045
-  JPY_ex <- 0.007
-  
-  
-  data_raw %>%
-    mutate(Salary.in.USD = case_when(
-             Currency == "NZD" ~ Salary * NZD_ex,
-             Currency == "GBP" ~ Salary * GBP_ex,
-             Currency == "AUD" ~ Salary * AUD_ex,
-             Currency == "SGD" ~ Salary * SGD_ex,
-             Currency == "EUR" ~ Salary * EUR_ex,
-             Currency == "CZK" ~ Salary * CZK_ex,
-             Currency == "JPY" ~ Salary * JPY_ex,
-             TRUE ~ Salary
-           ),
-           Salary.in.USD = case_when(
-             `Payment Frequency` == "hourly" ~ Salary.in.USD * 40 * 52,
-             `Payment Frequency` == "daily" ~ Salary.in.USD * 5 * 52,
-             `Payment Frequency` == "monthly" ~ Salary.in.USD *  12,
-             `Payment Frequency` == "yearly" ~ Salary.in.USD,
-             TRUE ~ Salary,
-           ))
-}
-
-data.salary <- make_common_salary(data.salary)
+# data.salary <- dfs %>% select("Payment Frequency", "Currency", "Salary", "Job.Type",
+#                              "Country")
+# 
+# data.salary <- data.salary %>% drop_na()
+# 
+# data.salary <- data.salary %>%
+#   mutate(Salary = str_replace_all(Salary,c("," = "")))
+# 
+# data.salary$Salary <- as.numeric(data.salary$Salary)
+# 
+# data.salary <- data.salary %>% mutate(Currency = case_when(
+#   Currency %in% c("NZ $", "NZD") ~ "NZD",
+#   Currency %in% c("US $", "USD") ~ "USD",
+#   Currency %in% c("Sterling Pounds", "GBP", "Sterling Pound", "Pounds") ~ "GBP",
+#   Currency == "AUD" ~ "AUD",
+#   Currency == "SGD" ~ "SGD",
+#   Currency %in% c("Euro", "EUR") ~ "EUR",
+#   Currency == "CZK" ~ "CZK",
+#   Currency == "Yen" ~ "JPY"
+# ))
+# 
+# 
+# data.salary <- data.salary %>% mutate(`Payment Frequency` = case_when(
+#   `Payment Frequency` == "daily" ~ "daily",
+#   `Payment Frequency` %in% c("annual", "yearly") ~ "yearly",
+#   `Payment Frequency` == "hourly" ~ "hourly",
+#   `Payment Frequency` == "monthly" ~ "monthly"
+# ))
+# 
+# make_common_salary <- function(data_raw){
+#   
+#   NZD_ex <- 0.61
+#   GBP_ex <- 1.27
+#   AUD_ex <- 0.65
+#   SGD_ex <- 0.74
+#   EUR_ex <- 1.1
+#   CZK_ex <- 0.045
+#   JPY_ex <- 0.007
+#   
+#   
+#   data_raw %>%
+#     mutate(Salary.in.USD = case_when(
+#              Currency == "NZD" ~ Salary * NZD_ex,
+#              Currency == "GBP" ~ Salary * GBP_ex,
+#              Currency == "AUD" ~ Salary * AUD_ex,
+#              Currency == "SGD" ~ Salary * SGD_ex,
+#              Currency == "EUR" ~ Salary * EUR_ex,
+#              Currency == "CZK" ~ Salary * CZK_ex,
+#              Currency == "JPY" ~ Salary * JPY_ex,
+#              TRUE ~ Salary
+#            ),
+#            Salary.in.USD = case_when(
+#              `Payment Frequency` == "hourly" ~ Salary.in.USD * 40 * 52,
+#              `Payment Frequency` == "daily" ~ Salary.in.USD * 5 * 52,
+#              `Payment Frequency` == "monthly" ~ Salary.in.USD *  12,
+#              `Payment Frequency` == "yearly" ~ Salary.in.USD,
+#              TRUE ~ Salary,
+#            ))
+# }
+# 
+# data.salary <- make_common_salary(data.salary)
 
 
 ```
@@ -1297,14 +1297,14 @@ Row
 
 ```{r}
 
-df_1 <- subset(data.salary, data.salary$Salary.in.USD < 250000) %>%
+df_1 <- subset(dfs, dfs$Salary < 250000) %>%
         filter(Job.Type %in% c("Data Analyst", "Data Scientist", "Data Engineer", 
                          "Statistician"))
 
 df_1$Job.Type <- factor(df_1$Job.Type, levels = c( "Statistician", "Data Engineer", "Data Scientist", "Data Analyst"))
 
 
-salary.plot1 <- plot_ly(df_1, x = df_1$Salary.in.USD,
+salary.plot1 <- plot_ly(df_1, x = df_1$Salary,
               color = df_1$Job.Type,
               colors = "Dark2",
               type = "box") %>%
@@ -1326,7 +1326,7 @@ df_1 <- df_1 %>% filter(Country %in% c("United States", "United Kingdom",
 df_1$Country <- factor(df_1$Country, levels = c( "United States", "Australia", "United Kingdom", "Singapore"))
 
 salary.plot2 <- plot_ly(df_1,
-                        x = df_1$Salary.in.USD,
+                        x = df_1$Salary,
                         color = df_1$Country,
                         colors = "Set1",
                         type = "box") %>%
