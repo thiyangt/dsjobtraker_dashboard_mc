@@ -166,7 +166,78 @@ data1 <- data1 %>% mutate(country_code = case_when(
 
 # Education qualification
 
-data1$Educational_qualifications <- paste(data1$BSc_needed,data1$MSc_needed,data1$PhD_needed,sep=",")
+data1$Educational_qualifications <- paste(data1$BSc_needed,data1$MSc_needed,
+                                          data1$PhD_needed,sep=",")
+
+# Converting Salary 
+
+data1 <- data1 %>%
+  mutate(Salary = str_replace_all(Salary,c("," = "")))
+
+data1$Salary <- as.numeric(data1$Salary)
+
+data1 <- data1 %>% mutate(Currency = case_when(
+  Currency %in% c("NZ $", "NZD") ~ "NZD",
+  Currency %in% c("US $", "USD") ~ "USD",
+  Currency %in% c("Sterling Pounds", "GBP", "Sterling Pound", "Pounds") ~ "GBP",
+  Currency == "AUD" ~ "AUD",
+  Currency == "SGD" ~ "SGD",
+  Currency %in% c("Euro", "EUR") ~ "EUR",
+  Currency == "CZK" ~ "CZK",
+  Currency == "Yen" ~ "JPY"
+))
+
+
+data1 <- data1 %>% mutate(`Payment Frequency` = case_when(
+  `Payment Frequency` == "daily" ~ "daily",
+  `Payment Frequency` %in% c("annual", "yearly") ~ "yearly",
+  `Payment Frequency` == "hourly" ~ "hourly",
+  `Payment Frequency` == "monthly" ~ "monthly"
+))
+
+make_common_salary <- function(data_raw){
+  
+  NZD_ex <- 0.61
+  GBP_ex <- 1.27
+  AUD_ex <- 0.65
+  SGD_ex <- 0.74
+  EUR_ex <- 1.1
+  CZK_ex <- 0.045
+  JPY_ex <- 0.007
+  
+  
+  data_raw %>%
+    mutate(Salary = case_when(
+      Currency == "NZD" ~ Salary * NZD_ex,
+      Currency == "GBP" ~ Salary * GBP_ex,
+      Currency == "AUD" ~ Salary * AUD_ex,
+      Currency == "SGD" ~ Salary * SGD_ex,
+      Currency == "EUR" ~ Salary * EUR_ex,
+      Currency == "CZK" ~ Salary * CZK_ex,
+      Currency == "JPY" ~ Salary * JPY_ex,
+      TRUE ~ Salary
+    ),
+    Salary = case_when(
+      `Payment Frequency` == "hourly" ~ Salary * 40 * 52,
+      `Payment Frequency` == "daily" ~ Salary * 5 * 52,
+      `Payment Frequency` == "monthly" ~ Salary *  12,
+      `Payment Frequency` == "yearly" ~ Salary,
+      TRUE ~ Salary,
+    ))
+}
+
+data1 <- make_common_salary(data1)
+
+# Changing values of Currency and Payment Frequency Columns
+
+data1 <- data1 %>% mutate(Currency = case_when(
+  Currency %in% c("NZD", "USD", "GBP", "AUD", "SGD", "EUR", "CZK", "JPY") ~ "USD",
+  Currency == NA ~ NA),
+  `Payment Frequency` = case_when(
+    `Payment Frequency` %in% c("monthly", "hourly",  "yearly",  "daily") ~ "yearly",
+    `Payment Frequency` == NA ~ NA)
+)
+
 
 # Export dataset
 
