@@ -59,4 +59,5 @@ Contact: ttalagala@sjp.ac.lk
 
 ![](img/img4.jpg)
 
+![](img/image6.jpg)
 
